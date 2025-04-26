@@ -6,6 +6,8 @@ local interaction = require("modules/classes/interaction")
 ---@class workspot : interaction
 ---@field workspotPosition {x: number, y: number, z: number}?
 ---@field workspotRotation {roll: number, pitch: number, yaw: number}?
+---@field workspotPositionPending boolean
+---@field workspotRotationPending boolean
 ---@field maxWorkspotPropertyWidth number?
 local workspot = setmetatable({}, { __index = interaction })
 
@@ -14,7 +16,7 @@ function workspot:new(mod, project)
 	local o = interaction.new(self, mod, project)
 
     o.interactionType = "Couch"
-    o.modulePath = "interactions/couch"
+    o.modulePath = "interactions/workspot"
     o.scene = "quest\\couch.scene"
     o.skipFact = "nif_skip_couch"
     o.endEvent = "nif_exit_couch"
@@ -29,6 +31,8 @@ function workspot:new(mod, project)
 
     o.workspotPosition = nil
     o.workspotRotation = nil
+    o.workspotPositionPending = false
+    o.workspotRotationPending = false
 
     o.maxWorkspotPropertyWidth = nil
 
@@ -52,6 +56,12 @@ function workspot:getPatchData()
     return data
 end
 
+function workspot:stop()
+    self.workspotPositionPending = false
+    self.workspotRotationPending = false
+    interaction.stop(self)
+end
+
 function workspot:draw()
     style.sectionHeaderStart("WORKSPOT POSITION")
 
@@ -62,15 +72,33 @@ function workspot:draw()
     style.mutedText("Workspot Position:")
     ImGui.SameLine()
     ImGui.SetCursorPosX(self.maxWorkspotPropertyWidth)
-    self.workspotPosition, changed = self.mod.baseUI.interactionUI.drawPosition(self.workspotPosition, "workspot")
+    self.workspotPosition, changed, finished = self.mod.baseUI.interactionUI.drawPosition(self.workspotPosition, "position")
     if changed then
         self.project:save()
     end
-    if ImGui.IsItemDeactivatedAfterEdit() then
-        if self.sceneRunning then
-            self:stop()
-            self:start()
-        end
+    if finished and self.sceneRunning then
+        self.workspotPositionPending = true
+    end
+    if self.workspotPositionPending then
+        ImGui.SameLine()
+        style.styledText(IconGlyphs.AlertOutline, 0xFF0000FF)
+        style.tooltip("Workspot position will be updated next time the interaction prompt gets hidden.")
+    end
+
+    style.mutedText("Workspot Orientation:")
+    ImGui.SameLine()
+    ImGui.SetCursorPosX(self.maxWorkspotPropertyWidth)
+    self.workspotRotation.yaw, changed, finished = self.mod.baseUI.interactionUI.drawYaw(self.workspotRotation.yaw, "orientation")
+    if changed then
+        self.project:save()
+    end
+    if finished and self.sceneRunning then
+        self.workspotRotationPending = true
+    end
+    if self.workspotRotationPending then
+        ImGui.SameLine()
+        style.styledText(IconGlyphs.AlertOutline, 0xFF0000FF)
+        style.tooltip("Workspot orientation will be updated next time the interaction prompt gets hidden.")
     end
 
     style.sectionHeaderEnd()

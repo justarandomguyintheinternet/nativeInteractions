@@ -27,16 +27,20 @@ function interactionUI.drawPosition(position, key)
 
     local changed = false
     local update = false
+    local finished = false
 
     ImGui.PushItemWidth(80 * style.viewSize)
     position.x, update = ImGui.DragFloat("##x", position.x, steps, -99999, 99999, formatText .. " X", ImGuiSliderFlags.NoRoundToFormat)
     changed = changed or update
+    finished = finished or ImGui.IsItemDeactivatedAfterEdit()
     ImGui.SameLine()
     position.y, update = ImGui.DragFloat("##y", position.y, steps, -99999, 99999, formatText .. " Y", ImGuiSliderFlags.NoRoundToFormat)
     changed = changed or update
+    finished = finished or ImGui.IsItemDeactivatedAfterEdit()
     ImGui.SameLine()
     position.z, update = ImGui.DragFloat("##z", position.z, steps, -99999, 99999, formatText .. " Z", ImGuiSliderFlags.NoRoundToFormat)
     changed = changed or update
+    finished = finished or ImGui.IsItemDeactivatedAfterEdit()
     ImGui.PopItemWidth()
 
     ImGui.SameLine()
@@ -48,7 +52,39 @@ function interactionUI.drawPosition(position, key)
 
     ImGui.PopID()
 
-    return position, changed
+    return position, changed, finished
+end
+
+function interactionUI.drawYaw(yaw, key)
+    local steps = 0.015
+    local formatText = "%.2f"
+
+    ImGui.PushID(key)
+
+	if ImGui.IsKeyDown(ImGuiKey.LeftShift) then
+		steps = steps * 0.01
+		formatText = "%.3f"
+	end
+
+    local changed = false
+
+    ImGui.PushItemWidth(80 * style.viewSize)
+    yaw, changed = ImGui.DragFloat("##yaw", yaw, steps, -99999, 99999, formatText .. " Yaw", ImGuiSliderFlags.NoRoundToFormat)
+    local finished = ImGui.IsItemDeactivatedAfterEdit()
+
+    ImGui.SameLine()
+    if style.buttonNoBG(IconGlyphs.AccountArrowLeftOutline) then
+        print(GetPlayer():GetWorldOrientation():ToEulerAngles().yaw)
+        print(yaw)
+        yaw = GetPlayer():GetWorldOrientation():ToEulerAngles().yaw
+        print(yaw)
+        changed = true
+    end
+    style.tooltip("Set to player rotation")
+
+    ImGui.PopID()
+
+    return yaw, changed, finished
 end
 
 function interactionUI.drawBaseOptions()
@@ -67,7 +103,7 @@ function interactionUI.drawBaseOptions()
     style.mutedText("Icon Position:")
     ImGui.SameLine()
     ImGui.SetCursorPosX(interactionUI.maxBasePropertyWidth)
-    interactionUI.interaction.worldIconPosition, changed = interactionUI.drawPosition(interactionUI.interaction.worldIconPosition, "icon")
+    interactionUI.interaction.worldIconPosition, changed, _ = interactionUI.drawPosition(interactionUI.interaction.worldIconPosition, "icon")
     if changed then
         world.updateInteractionPosition(interactionUI.interaction.worldInteractionID, ToVector4(interactionUI.interaction.worldIconPosition))
         interactionUI.project:save()

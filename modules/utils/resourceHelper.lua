@@ -20,14 +20,23 @@ function helper.init()
 
         local scene = event:GetResource()
 
+        -- Patch nodeIDs of choice hubs
         local choiceIDs = {}
-        for _, node in pairs(scene.sceneGraph.graph) do
+        local graph = scene.sceneGraph.graph
+
+        for _, node in pairs(graph) do
             if node:IsA("scnChoiceNode") then
                 table.insert(choiceIDs, node.nodeId.id)
                 node.nodeId = scnNodeId.new({ id = node.nodeId.id + helper.patches[path].choiceID }) --node.nodeId.id + helper.patches[path].choiceID
             end
         end
 
+        table.sort(graph, function (a, b)
+            return a.nodeId.id < b.nodeId.id
+        end)
+        scene.sceneGraph.graph = graph
+
+        -- Patch destination nodeIDs of nodes connected to choiceHubs
         for _, node in pairs(scene.sceneGraph.graph) do
             local sockets = node.outputSockets
 
@@ -46,6 +55,7 @@ function helper.init()
             node.outputSockets = sockets
         end
 
+        -- Patch animation offsets
         if helper.patches[path].animationPosition and helper.patches[path].animationRotation then
             for _, node in pairs(scene.sceneGraph.graph) do
                 if node:IsA("scnSectionNode") then
@@ -58,46 +68,7 @@ function helper.init()
                     end
                 end
             end
-
-            -- for _, workspot in pairs(scene.workspotInstances) do
-            --     workspot.localTransform = Transform.new({ position = ToVector4(helper.patches[path].animationPosition), orientation = ToEulerAngles(helper.patches[path].animationRotation):ToQuat() })
-            --     print(workspot.localTransform:GetPosition())
-            -- end
         end
-
-        -- print(scene.sceneGraph.graph[1].outputSockets[1].destinations[2].nodeId.id, "A")
-
-        -- -- Copy
-        -- local node = scene.sceneGraph.graph[1]
-        -- local sockets = node.outputSockets
-        -- local destinations = sockets[1].destinations
-
-        -- destinations[2].nodeId = scnNodeId.new({ id = 1691 })
-
-        -- -- Assign
-        -- sockets[1].destinations = destinations
-        -- node.outputSockets = sockets
-
-        -- -- scene.sceneGraph.graph[3].nodeId = scnNodeId.new({ id = 1690 })
-        -- print(scene.sceneGraph.graph[1].outputSockets[1].destinations[2].nodeId.id)--62
-        -- print(scene.sceneGraph.graph[3].nodeId.id)--61
-
-
-        -- for _, node in pairs(scene.sceneGraph.graph) do
-        --     if node.nodeId.id == 1692 then
-        --         print("NodeID", node.nodeId.id)
-        --         node.nodeId = scnNodeId.new({ id = 1691 })
-        --     end
-
-        --     for _, socket in pairs(node.outputSockets) do
-        --         for _, destination in pairs(socket.destinations) do
-        --             if destination.nodeId.id == 1962 then
-        --                 print("Destination", destination.nodeId.id)
-        --                 destination.nodeId = scnNodeId.new({ id = 1691 })
-        --             end
-        --         end
-        --     end
-        -- end
     end)
 end
 

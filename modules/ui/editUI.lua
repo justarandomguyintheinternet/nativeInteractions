@@ -3,7 +3,9 @@ local style = require("modules/ui/style")
 local interactions = {
     { name = "", class = require("modules/classes/interactions/wardrobe") },
     { name = "", class = require("modules/classes/interactions/couch") },
-    { name = "", class = require("modules/classes/interactions/tea") }
+    { name = "", class = require("modules/classes/interactions/tea") },
+    { name = "", class = require("modules/classes/interactions/bed") },
+    { name = "", class = require("modules/classes/interactions/shower") }
 }
 
 ---@class editUI

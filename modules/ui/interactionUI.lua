@@ -86,7 +86,7 @@ function interactionUI.drawPosition(position, key)
 end
 
 function interactionUI.drawYaw(yaw, key)
-    local steps = 0.015
+    local steps = 0.025
     local formatText = "%.2f"
 
     ImGui.PushID(key)

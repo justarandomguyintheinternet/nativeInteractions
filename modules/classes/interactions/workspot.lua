@@ -53,8 +53,8 @@ end
 function workspot:getPatchData()
     local data = interaction.getPatchData(self)
 
-    data.animationPosition = self.workspotPosition
-    data.animationRotation = self.workspotRotation
+    data.animationPosition = ToVector4(self.workspotPosition)
+    data.animationRotation = ToEulerAngles(self.workspotRotation)
 
     return data
 end

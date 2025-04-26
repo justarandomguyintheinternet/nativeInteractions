@@ -95,7 +95,7 @@ function interaction:start()
             return
         end
 
-        RedHotTools.ReloadResources({ self.scene })
+        Game.GetResourceDepot():RemoveResourceFromCache(self.scene)
         resourceHelper.registerPatch(self.scene, self:getPatchData())
         Game.GetQuestsSystem():SetFact("nif_start_signal", 1)
         Game.GetQuestsSystem():SetFact("nif_interaction_id", self.startFactID)
@@ -137,7 +137,6 @@ function interaction:save()
 
     data.name = self.name
     data.modulePath = self.modulePath
-    data.worldIcon = self.worldIcon
     data.worldIconRange = self.worldIconRange
     data.interactionAngle = self.interactionAngle
     data.interactionRange = self.interactionRange

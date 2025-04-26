@@ -85,4 +85,6 @@ function tea:save()
     return data
 end
 
+-- TODO: Fix: Two teas next to each other, look at one, look at other, use other, skip, then the first one misses icon until leaving and entering range
+
 return tea

@@ -62,15 +62,27 @@ function helper.init()
                     for _, event in pairs(node.events) do
                         if event:IsA("scnPlaySkAnimEvent") then
                             local data = event.rootMotionData
-                            data.originOffset = Transform.new({ position = ToVector4(helper.patches[path].animationPosition), orientation = ToEulerAngles(helper.patches[path].animationRotation):ToQuat() })
+                            -- Some animation events have an offset defined in the scene file, so use that additionally
+                            local pos = utils.addVector(helper.patches[path].animationPosition, helper.patches[path].animationRotation:ToQuat():Transform(data.originOffset:GetPosition()))
+                            local rot = utils.addEuler(helper.patches[path].animationRotation, data.originOffset:GetOrientation():ToEulerAngles())
+                            data.originOffset = Transform.new({ position = pos, orientation = rot:ToQuat() })
                             event.rootMotionData = data
                         end
                     end
                 end
             end
+
+            local workspots = scene.workspotInstances
+            for _, workspot in pairs(workspots) do
+                local pos = utils.addVector(helper.patches[path].animationPosition, helper.patches[path].animationRotation:ToQuat():Transform(workspot.localTransform:GetPosition()))
+                local rot = utils.addEuler(helper.patches[path].animationRotation, workspot.localTransform:GetOrientation():ToEulerAngles())
+                workspot.localTransform = Transform.new({ position = pos, orientation = rot:ToQuat() })
+            end
+            scene.workspotInstances = workspots
         end
 
         if helper.patches[path].propMap then
+            -- NodeRefs in props
             local props = scene.props
             for _, prop in pairs(props) do
                 local replacement = helper.patches[path].propMap[utils.nodeRefToHashString(prop.findEntityInNodeParams.nodeRef)]
@@ -82,6 +94,21 @@ function helper.init()
                 end
             end
             scene.props = props
+
+            -- NodeRefs in VFX events
+            for _, node in pairs(scene.sceneGraph.graph) do
+                if node:IsA("scnSectionNode") then
+                    for _, event in pairs(node.events) do
+                        if event:IsA("scneventsVFXEvent") then
+                            local replacement = helper.patches[path].propMap[utils.nodeRefToHashString(event.nodeRef)]
+
+                            if replacement then
+                                event.nodeRef = CreateNodeRef(replacement)
+                            end
+                        end
+                    end
+                end
+            end
 
             -- Not really needed
             local performers = scene.debugSymbols.performersDebugSymbols

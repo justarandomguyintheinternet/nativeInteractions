@@ -1,0 +1,30 @@
+name: pack
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  pack:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup folders
+        run: |
+          cd ${{ github.workspace }}
+          sudo mkdir -p /nativeInteractionsPacked/r6/scripts/
+          sudo mkdir -p /nativeInteractionsPacked/bin/x64/plugins/cyber_engine_tweaks/mods/nativeInteractions/
+      - name: Copy files
+        run: |
+          sudo cp -r r6 /nativeInteractionsPacked/
+          sudo cp -r projects /nativeInteractionsPacked/bin/x64/plugins/cyber_engine_tweaks/mods/nativeInteractions/
+          sudo cp -r modules /nativeInteractionsPacked/bin/x64/plugins/cyber_engine_tweaks/mods/nativeInteractions/
+          sudo cp -r init.lua /nativeInteractionsPacked/bin/x64/plugins/cyber_engine_tweaks/mods/nativeInteractions/
+      - name: Upload zip
+        uses: actions/upload-artifact@v4
+        with:
+          name: nativeInteractionsPacked
+          path: /nativeInteractionsPacked/
+          include-hidden-files: true

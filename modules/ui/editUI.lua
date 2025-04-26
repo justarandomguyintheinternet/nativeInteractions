@@ -2,7 +2,8 @@ local style = require("modules/ui/style")
 
 local interactions = {
     { name = "", class = require("modules/classes/interactions/wardrobe") },
-    { name = "", class = require("modules/classes/interactions/workspot") }
+    { name = "", class = require("modules/classes/interactions/couch") },
+    { name = "", class = require("modules/classes/interactions/tea") }
 }
 
 ---@class editUI
@@ -74,19 +75,27 @@ function editUI.draw(mod)
         ImGui.SameLine()
         style.pushButtonNoBG(true)
         if ImGui.Button(IconGlyphs.CogOutline) then
+            if editUI.mod.baseUI.interactionUI.interaction then
+                editUI.mod.baseUI.interactionUI.interaction:editEnd()
+            end
+
             editUI.mod.baseUI.interactionUI.interaction = entry
             editUI.mod.baseUI.interactionUI.project = editUI.project
             editUI.mod.baseUI.switchToInteraction = true
+            entry:editStart()
         end
         style.tooltip("Edit Interaction")
         ImGui.SameLine()
-        if ImGui.Button(IconGlyphs.TrashCanOutline) then
+        style.pushGreyedOut(entry.sceneRunning and sceneActive)
+        if ImGui.Button(IconGlyphs.TrashCanOutline) and not (entry.sceneRunning and sceneActive) then
             editUI.project:removeInteraction(entry)
             if editUI.mod.baseUI.interactionUI.interaction == entry then
                 editUI.mod.baseUI.interactionUI.interaction = nil
+                editUI.mod.baseUI.interactionUI.setPaused(false)
             end
         end
-        style.tooltip("Delete Interaction")
+        style.tooltip((entry.sceneRunning and sceneActive) and "Cannot delete, is running" or "Delete Interaction")
+        style.popGreyedOut(sceneActive and entry.sceneRunning)
         style.pushButtonNoBG(false)
 
         ImGui.PopID()

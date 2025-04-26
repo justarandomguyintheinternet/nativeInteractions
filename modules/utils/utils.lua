@@ -324,6 +324,13 @@ function miscUtils.nodeRefStringToHashString(data)
     return hash
 end
 
+function miscUtils.nodeRefToHashString(ref)
+    local hash = NodeRefToHash(ref)
+    hash, _ = tostring(hash):gsub("ULL", "")
+
+    return hash
+end
+
 function miscUtils.insertClipboardValue(key, data)
     miscUtils.data[key] = data
 end

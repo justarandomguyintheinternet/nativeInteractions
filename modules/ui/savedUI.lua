@@ -119,6 +119,12 @@ function savedUI.draw(mod)
                 savedUI.mod.baseUI.editUI.project = project
                 savedUI.loadedFileName = project.name
                 savedUI.mod.baseUI.switchToEdit = true
+                if savedUI.mod.baseUI.interactionUI.interaction then
+                    savedUI.mod.baseUI.interactionUI.setCameraExternal(false)
+                    savedUI.mod.baseUI.interactionUI.setPaused(false)
+                    savedUI.mod.baseUI.interactionUI.interaction:editEnd()
+                    savedUI.mod.baseUI.interactionUI.interaction = nil
+                end
             end
             style.tooltip("Load project")
             ImGui.SameLine()
@@ -171,6 +177,8 @@ function savedUI.delete(project)
         savedUI.mod.baseUI.editUI.project = nil
         savedUI.mod.baseUI.interactionUI.interaction = nil
         savedUI.mod.baseUI.interactionUI.project = nil
+        savedUI.mod.baseUI.interactionUI.setCameraExternal(false)
+        savedUI.mod.baseUI.interactionUI.setPaused(false)
     end
 
     manager.removeProject(project)

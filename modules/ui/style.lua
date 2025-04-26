@@ -244,4 +244,19 @@ function style.drawNoBGConditionalButton(condition, text, greyed)
     return push
 end
 
+function style.drawNodeRefInfo(ref)
+    local hash, _ = ref:gsub("#", "")
+    hash = FNV1a64(hash)
+
+    local entity = Game.FindEntityByID(entEntityID.new({ hash = hash }))
+
+    if not entity then
+        style.styledText(IconGlyphs.AlertOutline, 0xFF0000FF)
+        style.tooltip("NodeRef could not be resolved to an entity")
+    else
+        style.styledText(IconGlyphs.CheckCircleOutline, 0xFF00FF00)
+        style.tooltip("NodeRef resolved to entity")
+    end
+end
+
 return style

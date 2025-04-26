@@ -69,6 +69,33 @@ function helper.init()
                 end
             end
         end
+
+        if helper.patches[path].propMap then
+            local props = scene.props
+            for _, prop in pairs(props) do
+                local replacement = helper.patches[path].propMap[utils.nodeRefToHashString(prop.findEntityInNodeParams.nodeRef)]
+
+                if replacement then
+                    local params = prop.findEntityInNodeParams
+                    params.nodeRef = CreateNodeRef(replacement)
+                    prop.findEntityInNodeParams = params
+                end
+            end
+            scene.props = props
+
+            -- Not really needed
+            local performers = scene.debugSymbols.performersDebugSymbols
+            for _, performer in pairs(performers) do
+                local replacement = helper.patches[path].propMap[utils.nodeRefToHashString(performer.entityRef.reference)]
+
+                if replacement then
+                    local entityRef = performer.entityRef
+                    entityRef.reference = CreateNodeRef(replacement)
+                    performer.entityRef = entityRef
+                end
+            end
+            scene.debugSymbols.performersDebugSymbols = performers
+        end
     end)
 end
 

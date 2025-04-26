@@ -8,6 +8,7 @@ local interaction = require("modules/classes/interaction")
 ---@field workspotRotation {roll: number, pitch: number, yaw: number}?
 ---@field workspotPositionPending boolean
 ---@field workspotRotationPending boolean
+---@field previewEntityID number?
 ---@field maxWorkspotPropertyWidth number?
 local workspot = setmetatable({}, { __index = interaction })
 
@@ -33,6 +34,8 @@ function workspot:new(mod, project)
     o.workspotRotation = nil
     o.workspotPositionPending = false
     o.workspotRotationPending = false
+
+    o.previewEntityID = nil
 
     o.maxWorkspotPropertyWidth = nil
 
@@ -62,6 +65,36 @@ function workspot:stop()
     interaction.stop(self)
 end
 
+function workspot:sessionStart()
+    self.previewEntityID = nil
+end
+
+function workspot:editStart()
+    local spec = StaticEntitySpec.new()
+    spec.templatePath = "nif\\arrow\\arrow.ent"
+    spec.position = ToVector4(self.workspotPosition)
+    spec.orientation = ToEulerAngles(self.workspotRotation):ToQuat()
+    spec.attached = true
+    self.previewEntityID = Game.GetStaticEntitySystem():SpawnEntity(spec)
+end
+
+function workspot:editEnd()
+    if not self.previewEntityID then return end
+    Game.GetStaticEntitySystem():DespawnEntity(self.previewEntityID)
+end
+
+function workspot:updatePreview()
+    if not self.previewEntityID then return end
+
+    local entity = Game.GetStaticEntitySystem():GetEntity(self.previewEntityID)
+    if not entity then return end
+
+    local transform = entity:GetWorldTransform()
+    transform:SetPosition(ToVector4(self.workspotPosition))
+    transform:SetOrientationEuler(ToEulerAngles(self.workspotRotation))
+    entity:SetWorldTransform(transform)
+end
+
 function workspot:draw()
     style.sectionHeaderStart("WORKSPOT POSITION")
 
@@ -74,6 +107,7 @@ function workspot:draw()
     ImGui.SetCursorPosX(self.maxWorkspotPropertyWidth)
     self.workspotPosition, changed, finished = self.mod.baseUI.interactionUI.drawPosition(self.workspotPosition, "position")
     if changed then
+        self:updatePreview()
         self.project:save()
     end
     if finished and self.sceneRunning then
@@ -90,6 +124,7 @@ function workspot:draw()
     ImGui.SetCursorPosX(self.maxWorkspotPropertyWidth)
     self.workspotRotation.yaw, changed, finished = self.mod.baseUI.interactionUI.drawYaw(self.workspotRotation.yaw, "orientation")
     if changed then
+        self:updatePreview()
         self.project:save()
     end
     if finished and self.sceneRunning then

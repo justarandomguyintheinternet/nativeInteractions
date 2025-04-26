@@ -114,6 +114,7 @@ end
 
 function interaction:remove()
     self:stop()
+    self:editEnd()
 
     if self.worldInteractionID then
         world.removeInteraction(self.worldInteractionID)
@@ -121,17 +122,15 @@ function interaction:remove()
     end
 end
 
-function interaction:sessionStart()
+function interaction:sessionStart() end
 
-end
+function interaction:onUpdate() end
 
-function interaction:onUpdate()
+function interaction:draw() end
 
-end
+function interaction:editStart() end
 
-function interaction:draw()
-
-end
+function interaction:editEnd() end
 
 function interaction:save()
     local data = {}

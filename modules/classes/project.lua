@@ -58,7 +58,9 @@ function project:removeInteraction(interaction)
 end
 
 function project:sessionStart()
-
+    for _, interaction in pairs(self.interactions) do
+        interaction:sessionStart()
+    end
 end
 
 function project:onUpdate()

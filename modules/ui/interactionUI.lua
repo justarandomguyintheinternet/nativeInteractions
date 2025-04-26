@@ -7,12 +7,42 @@ local world = require("modules/utils/worldInteraction")
 ---@field public interaction interaction?
 ---@field public project project?
 ---@field public maxBasePropertyWidth number?
+---@field public paused boolean
+---@field public cameraExternal boolean
 local interactionUI = {
     mod = nil,
     interaction = nil,
     project = nil,
-    maxBasePropertyWidth = nil
+    maxBasePropertyWidth = nil,
+    paused = false,
+    cameraExternal = false
 }
+
+function interactionUI.setPaused(state)
+    interactionUI.paused = state
+
+    if state then
+        Game.GetTimeSystem():SetTimeDilation("nif", 0.000000001)
+    else
+        Game.GetTimeSystem():UnsetTimeDilation("nif")
+    end
+end
+
+function interactionUI.setCameraExternal(state)
+    interactionUI.cameraExternal = state
+
+    if state then
+        Game.GetPlayer():GetFPPCameraComponent():SetLocalPosition(Vector4.new(0, -2, 0, 0))
+        Game.GetPlayer():GetFPPCameraComponent():SetLocalOrientation(Quaternion.new(0, 0, 0, 1))
+        Game.GetPlayer():GetFPPCameraComponent().pitchMax = 89
+        Game.GetPlayer():GetFPPCameraComponent().pitchMin = -89
+        Game.GetPlayer():GetFPPCameraComponent().yawMaxRight = -360
+        Game.GetPlayer():GetFPPCameraComponent().yawMaxLeft = 360
+    else
+        Game.GetPlayer():GetFPPCameraComponent():SetLocalPosition(Vector4.new(0, 0, 0, 0))
+        Game.GetPlayer():GetFPPCameraComponent():SetLocalOrientation(Quaternion.new(0, 0, 0, 1))
+    end
+end
 
 function interactionUI.drawPosition(position, key)
     local steps = 0.0075
@@ -74,10 +104,7 @@ function interactionUI.drawYaw(yaw, key)
 
     ImGui.SameLine()
     if style.buttonNoBG(IconGlyphs.AccountArrowLeftOutline) then
-        print(GetPlayer():GetWorldOrientation():ToEulerAngles().yaw)
-        print(yaw)
         yaw = GetPlayer():GetWorldOrientation():ToEulerAngles().yaw
-        print(yaw)
         changed = true
     end
     style.tooltip("Set to player rotation")
@@ -152,10 +179,23 @@ function interactionUI.draw(mod)
     end
 
     if style.buttonNoBG(IconGlyphs.Close) then
+        interactionUI.interaction:editEnd()
+        interactionUI.interaction = nil
+        interactionUI.setPaused(false)
+        interactionUI.setCameraExternal(false)
     end
+    style.tooltip("Stop editing")
     ImGui.SameLine()
-    if style.buttonNoBG(IconGlyphs.Refresh) then
+    if style.buttonNoBG(interactionUI.paused and IconGlyphs.Play or IconGlyphs.Pause) then
+        interactionUI.setPaused(not interactionUI.paused)
     end
+    style.tooltip(interactionUI.paused and "Resume Game" or "Pause Game")
+    ImGui.SameLine()
+    if style.buttonNoBG(interactionUI.cameraExternal and IconGlyphs.CameraOutline or IconGlyphs.CameraFlipOutline) then
+        interactionUI.setCameraExternal(not interactionUI.cameraExternal)
+    end
+    style.tooltip(interactionUI.cameraExternal and "Disable External Camera" or "Enable External Camera")
+
     style.spacedSeparator()
 
     style.mutedText(string.upper(interactionUI.interaction.interactionType) .. " | " .. interactionUI.interaction.name)

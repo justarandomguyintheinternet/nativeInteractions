@@ -44,6 +44,7 @@ function mod:new()
         CName.add("nif_start_signal")
         CName.add("nif_interaction_id")
         CName.add("nif_scene_active")
+        CName.add("nif")
 
         Observe('RadialWheelController', 'OnIsInMenuChanged', function(_, isInMenu)
             self.runtimeData.inMenu = isInMenu
@@ -54,6 +55,8 @@ function mod:new()
             Game.GetQuestsSystem():SetFact("nif_scene_active", 0)
             manager.sessionStart()
             world.onSessionStart()
+            self.baseUI.interactionUI.interaction:editEnd()
+            self.baseUI.interactionUI.interaction = nil
         end)
 
         self.GameUI.OnSessionEnd(function()

@@ -14,6 +14,7 @@ function world.addInteraction(modulePath, position, interactionRange, angle, ico
         callback = callback,
         pinID = nil,
         shown = false,
+        disabled = false,
         hideIcon = false
     }
 
@@ -28,6 +29,19 @@ function world.removeInteraction(key)
         end
 
         table.remove(world.interactions, key)
+    end
+end
+
+function world.disableInteraction(key, state)
+    if not world.interactions[key] then return end
+    if world.interactions[key].disabled == state then return end
+
+    world.interactions[key].disabled = state
+
+    if world.interactions[key].shown then
+        world.togglePin(world.interactions[key], false)
+    else
+        world.togglePin(world.interactions[key], true)
     end
 end
 
@@ -64,7 +78,7 @@ function world.update()
 
         if Vector4.Distance(posPlayer, interaction.pos) < interaction.interactionRange then -- Custom callback when in range and look at
             if interactionAngle < interaction.angle then
-                update = true
+                update = true and not interaction.disabled
             else
                 update = false
             end
@@ -92,7 +106,7 @@ function world.update()
             interaction.callback(interaction.shown)
         end
 
-        if interaction.icon and Vector4.Distance(posPlayer, interaction.pos) < interaction.iconRange then -- Hide / show optional icon
+        if not interaction.disabled and interaction.icon and Vector4.Distance(posPlayer, interaction.pos) < interaction.iconRange then -- Hide / show optional icon
             world.togglePin(interaction, true)
         elseif interaction.icon then
             world.togglePin(interaction, false)

@@ -55,6 +55,10 @@ function bar:load(data)
     self:reset()
 end
 
+function bar:sessionStart()
+    self:reset()
+end
+
 function bar:getPatchData()
     local data = workspot.getPatchData(self)
 

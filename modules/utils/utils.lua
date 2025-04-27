@@ -331,6 +331,13 @@ function miscUtils.nodeRefToHashString(ref)
     return hash
 end
 
+function miscUtils.getEntityByRef(ref)
+    local hash, _ = ref:gsub("#", "")
+    hash = FNV1a64(hash)
+
+    return Game.FindEntityByID(entEntityID.new({ hash = hash }))
+end
+
 function miscUtils.insertClipboardValue(key, data)
     miscUtils.data[key] = data
 end

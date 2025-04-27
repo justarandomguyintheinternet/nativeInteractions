@@ -64,7 +64,9 @@ function project:sessionStart()
 end
 
 function project:onUpdate()
-
+    for _, interaction in pairs(self.interactions) do
+        interaction:onUpdate()
+    end
 end
 
 function project:save()

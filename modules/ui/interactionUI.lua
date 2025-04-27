@@ -9,17 +9,30 @@ local world = require("modules/utils/worldInteraction")
 ---@field public maxBasePropertyWidth number?
 ---@field public paused boolean
 ---@field public cameraExternal boolean
+---@field public fastForward boolean
 local interactionUI = {
     mod = nil,
     interaction = nil,
     project = nil,
     maxBasePropertyWidth = nil,
     paused = false,
-    cameraExternal = false
+    cameraExternal = false,
+    fastForward = false
 }
+
+function interactionUI.projectUnload()
+    if interactionUI.interaction then
+        interactionUI.setCameraExternal(false)
+        interactionUI.setPaused(false)
+        interactionUI.setFastForward(false)
+        interactionUI.interaction:editEnd()
+        interactionUI.interaction = nil
+    end
+end
 
 function interactionUI.setPaused(state)
     interactionUI.paused = state
+    interactionUI.fastForward = false
 
     if state then
         Game.GetTimeSystem():SetTimeDilation("nif", 0.000000001)
@@ -41,6 +54,17 @@ function interactionUI.setCameraExternal(state)
     else
         Game.GetPlayer():GetFPPCameraComponent():SetLocalPosition(Vector4.new(0, 0, 0, 0))
         Game.GetPlayer():GetFPPCameraComponent():SetLocalOrientation(Quaternion.new(0, 0, 0, 1))
+    end
+end
+
+function interactionUI.setFastForward(state)
+    interactionUI.fastForward = state
+    interactionUI.paused = false
+
+    if state then
+        Game.GetTimeSystem():SetTimeDilation("nif", 2.5)
+    else
+        Game.GetTimeSystem():UnsetTimeDilation("nif")
     end
 end
 
@@ -183,6 +207,7 @@ function interactionUI.draw(mod)
         interactionUI.interaction = nil
         interactionUI.setPaused(false)
         interactionUI.setCameraExternal(false)
+        interactionUI.setFastForward(false)
     end
     style.tooltip("Stop editing")
     ImGui.SameLine()
@@ -190,6 +215,11 @@ function interactionUI.draw(mod)
         interactionUI.setPaused(not interactionUI.paused)
     end
     style.tooltip(interactionUI.paused and "Resume Game" or "Pause Game")
+    ImGui.SameLine()
+    if style.buttonNoBG(interactionUI.fastForward and IconGlyphs.FastForward or IconGlyphs.FastForwardOutline) then
+        interactionUI.setFastForward(not interactionUI.fastForward)
+    end
+    style.tooltip(interactionUI.fastForward and "Normal Speed" or "Fast Forward")
     ImGui.SameLine()
     if style.buttonNoBG(interactionUI.cameraExternal and IconGlyphs.CameraOutline or IconGlyphs.CameraFlipOutline) then
         interactionUI.setCameraExternal(not interactionUI.cameraExternal)

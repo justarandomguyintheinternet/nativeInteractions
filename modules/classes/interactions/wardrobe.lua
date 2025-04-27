@@ -15,7 +15,7 @@ function wardrobe:new(mod, project)
     o.startFactID = 1
 
     o.name = "Default Interaction"
-    o.worldIcon = "ChoiceIcons.SitIcon"
+    o.worldIcon = "ChoiceIcons.OpenWardrobeIcon"
     o.worldIconRange = 5
     o.interactionAngle = 80
     o.interactionRange = 1.5

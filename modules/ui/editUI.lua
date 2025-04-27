@@ -5,7 +5,9 @@ local interactions = {
     { name = "", class = require("modules/classes/interactions/couch") },
     { name = "", class = require("modules/classes/interactions/tea") },
     { name = "", class = require("modules/classes/interactions/bed") },
-    { name = "", class = require("modules/classes/interactions/shower") }
+    { name = "", class = require("modules/classes/interactions/shower") },
+    { name = "", class = require("modules/classes/interactions/coffee") },
+    { name = "", class = require("modules/classes/interactions/bar") }
 }
 
 ---@class editUI
@@ -94,6 +96,7 @@ function editUI.draw(mod)
             if editUI.mod.baseUI.interactionUI.interaction == entry then
                 editUI.mod.baseUI.interactionUI.interaction = nil
                 editUI.mod.baseUI.interactionUI.setPaused(false)
+                editUI.mod.baseUI.interactionUI.setFastForward(false)
             end
         end
         style.tooltip((entry.sceneRunning and sceneActive) and "Cannot delete, is running" or "Delete Interaction")

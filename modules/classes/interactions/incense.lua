@@ -78,6 +78,8 @@ function incense:start()
 end
 
 function incense:reset()
+    if not self.used then return end
+
     self.used = false
     world.disableInteraction(self.worldInteractionID, false)
 

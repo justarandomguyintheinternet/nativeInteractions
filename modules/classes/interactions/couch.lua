@@ -75,7 +75,7 @@ function couch:draw()
     style.mutedText("Sit Animation:")
     ImGui.SameLine()
     ImGui.SetCursorPosX(self.maxActionPropertyWidth)
-    style.setNextItemWidth(300)
+    style.setNextItemWidth(150)
     local sitType, changed = ImGui.Combo("##sitType", self.sitType - 1, { "Legs Normal", "Legs Wide", "Legs Crossed" }, 3)
     if changed then
         self.sitType = sitType + 1

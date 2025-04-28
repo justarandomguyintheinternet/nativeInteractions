@@ -8,7 +8,8 @@ local interactions = {
     { name = "", class = require("modules/classes/interactions/shower") },
     { name = "", class = require("modules/classes/interactions/coffee") },
     { name = "", class = require("modules/classes/interactions/bar") },
-    { name = "", class = require("modules/classes/interactions/incense") }
+    { name = "", class = require("modules/classes/interactions/incense") },
+    { name = "", class = require("modules/classes/interactions/guitar") }
 }
 
 ---@class editUI

@@ -15,7 +15,7 @@ function tea:new(mod, project)
 
     o.interactionType = "Tea"
     o.modulePath = "interactions/tea"
-    o.scene = "quest\\tea.scene"
+    o.scene = "nif\\quest\\tea.scene"
     o.skipFact = "nif_skip_tea"
     o.endEvent = "nif_exit_tea"
     o.startFactID = 3

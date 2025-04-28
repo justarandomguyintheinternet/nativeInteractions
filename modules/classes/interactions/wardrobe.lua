@@ -9,7 +9,7 @@ function wardrobe:new(mod, project)
 
     o.interactionType = "Wardrobe"
     o.modulePath = "interactions/wardrobe"
-    o.scene = "quest\\wardrobe.scene"
+    o.scene = "nif\\quest\\wardrobe.scene"
     o.skipFact = "nif_skip_wardrobe"
     o.endEvent = "nif_exit_wardrobe"
     o.startFactID = 1

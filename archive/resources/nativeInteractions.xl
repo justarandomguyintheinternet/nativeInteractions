@@ -1,0 +1,7 @@
+streaming:
+  blocks:
+  - nif/all.streamingblock
+quest:
+  phases:
+    - path: nif/quest/native_interactions.questphase
+      parent: cyberpunk2077.quest

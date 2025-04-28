@@ -21,7 +21,7 @@ function incense:new(mod, project)
 
     o.interactionType = "Incense"
     o.modulePath = "interactions/incense"
-    o.scene = "quest\\incense.scene"
+    o.scene = "nif\\quest\\incense.scene"
     o.skipFact = "nif_skip_incense"
     o.endEvent = "nif_exit_incense"
     o.startFactID = 8
@@ -92,8 +92,8 @@ function incense:reset()
         incense:SetWorldTransform(transform)
     end
 
-    Game.GetResourceDepot():RemoveResourceFromCache("quest\\incense_stop.scene")
-    resourceHelper.registerPatch("quest\\incense_stop.scene", self:getPatchData())
+    Game.GetResourceDepot():RemoveResourceFromCache("nif\\quest\\incense_stop.scene")
+    resourceHelper.registerPatch("nif\\quest\\incense_stop.scene", self:getPatchData())
     Game.GetQuestsSystem():SetFact("nif_interaction_id", 9)
     Game.GetQuestsSystem():SetFact("nif_start_signal", 1)
 end

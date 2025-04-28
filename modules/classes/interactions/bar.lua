@@ -19,7 +19,7 @@ function bar:new(mod, project)
 
     o.interactionType = "Bar Stool"
     o.modulePath = "interactions/bar"
-    o.scene = "quest\\sit_drink_smoke.scene"
+    o.scene = "nif\\quest\\sit_drink_smoke.scene"
     o.skipFact = "nif_skip_bar"
     o.endEvent = "nif_exit_bar"
     o.startFactID = 7

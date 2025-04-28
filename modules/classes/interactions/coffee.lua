@@ -15,7 +15,7 @@ function coffee:new(mod, project)
 
     o.interactionType = "Coffee"
     o.modulePath = "interactions/coffee"
-    o.scene = "quest\\coffee.scene"
+    o.scene = "nif\\quest\\coffee.scene"
     o.skipFact = "nif_skip_coffee"
     o.endEvent = "nif_exit_coffee"
     o.startFactID = 6

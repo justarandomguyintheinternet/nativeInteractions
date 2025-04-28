@@ -10,7 +10,7 @@ function bed:new(mod, project)
 
     o.interactionType = "Bed"
     o.modulePath = "interactions/bed"
-    o.scene = "quest\\sleep.scene"
+    o.scene = "nif\\quest\\sleep.scene"
     o.skipFact = "nif_skip_bed"
     o.endEvent = "nif_exit_bed"
     o.startFactID = 4

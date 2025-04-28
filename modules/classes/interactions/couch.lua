@@ -17,7 +17,7 @@ function couch:new(mod, project)
 
     o.interactionType = "Couch"
     o.modulePath = "interactions/couch"
-    o.scene = "quest\\sit_tv.scene"
+    o.scene = "nif\\quest\\sit_tv.scene"
     o.skipFact = "nif_skip_couch"
     o.endEvent = "nif_exit_couch"
     o.startFactID = 2

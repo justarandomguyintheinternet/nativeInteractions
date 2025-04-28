@@ -18,7 +18,7 @@ function workspot:new(mod, project)
 
     o.interactionType = "Couch"
     o.modulePath = "interactions/workspot"
-    o.scene = "quest\\couch.scene"
+    o.scene = "nif\\quest\\couch.scene"
     o.skipFact = "nif_skip_couch"
     o.endEvent = "nif_exit_couch"
     o.startFactID = 2

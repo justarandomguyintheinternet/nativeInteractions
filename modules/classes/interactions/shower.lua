@@ -14,7 +14,7 @@ function shower:new(mod, project)
 
     o.interactionType = "Shower"
     o.modulePath = "interactions/shower"
-    o.scene = "quest\\shower.scene"
+    o.scene = "nif\\quest\\shower.scene"
     o.skipFact = "nif_skip_shower"
     o.endEvent = "nif_exit_shower"
     o.startFactID = 5

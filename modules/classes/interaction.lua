@@ -32,7 +32,7 @@ function interaction:new(mod, project)
     o.project = project
     o.interactionType = "Base Interaction"
     o.modulePath = "interaction"
-    o.scene = "quest\\wardrobe.scene"
+    o.scene = "nif\\quest\\wardrobe.scene"
     o.skipFact = "nif_skip_wardrobe"
     o.endEvent = "nif_exit_wardrobe"
     o.startFactID = 1

@@ -153,7 +153,7 @@ function bar:draw()
         self:reset()
     end
     ImGui.SameLine()
-    style.drawNodeRefInfo(self.glassRef)
+    style.drawNodeRefInfo(self.glassRef, true)
 
     style.mutedText("Reset Distance:")
     ImGui.SameLine()

@@ -244,13 +244,20 @@ function style.drawNoBGConditionalButton(condition, text, greyed)
     return push
 end
 
-function style.drawNodeRefInfo(ref)
-    local hash = ResolveNodeRef(CreateNodeRef(ref), GlobalNodeID.GetRoot()).hash
-    local entity = Game.FindEntityByID(entEntityID.new({ hash = hash }))
+function style.drawNodeRefInfo(ref, shouldBeEntity)
+    local globalNodeRef = ResolveNodeRef(CreateNodeRef(ref), GlobalNodeID.GetRoot())
+    local entity = Game.FindEntityByID(entEntityID.new({ hash = globalNodeRef.hash }))
+    local exists, _ = Game.GetNodeTransform(globalNodeRef)
 
-    if not entity then
+    if not entity and shouldBeEntity then
         style.styledText(IconGlyphs.AlertOutline, 0xFF0000FF)
         style.tooltip("NodeRef could not be resolved to an entity")
+    elseif exists and not shouldBeEntity then
+        style.styledText(IconGlyphs.CheckCircleOutline, 0xFF00FF00)
+        style.tooltip("NodeRef resolved to node")
+    elseif not exists and not shouldBeEntity then
+        style.styledText(IconGlyphs.AlertOutline, 0xFF0000FF)
+        style.tooltip("NodeRef could not be resolved to a node")
     else
         style.styledText(IconGlyphs.CheckCircleOutline, 0xFF00FF00)
         style.tooltip("NodeRef resolved to entity")

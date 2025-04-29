@@ -62,7 +62,7 @@ function coffee:draw()
     self.coffeeMugRef, changed = ImGui.InputTextWithHint('##coffeeMugRef', '$/mod/#coffee_mug', self.coffeeMugRef, 250)
     if changed then self.project:save() end
     ImGui.SameLine()
-    style.drawNodeRefInfo(self.coffeeMugRef)
+    style.drawNodeRefInfo(self.coffeeMugRef, true)
 
     style.mutedText("Coffe Machine:")
     ImGui.SameLine()
@@ -71,7 +71,7 @@ function coffee:draw()
     self.coffeeMachineRef, changed = ImGui.InputTextWithHint('##coffeeMachineRef', '$/mod/#coffee_machine', self.coffeeMachineRef, 250)
     if changed then self.project:save() end
     ImGui.SameLine()
-    style.drawNodeRefInfo(self.coffeeMachineRef)
+    style.drawNodeRefInfo(self.coffeeMachineRef, true)
 
     style.sectionHeaderEnd()
 end

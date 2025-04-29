@@ -105,7 +105,7 @@ function couch:draw()
     self.tvRef, changed = ImGui.InputTextWithHint('##tvRef', '$/mod/#tv', self.tvRef, 250)
     if changed then self.project:save() end
     ImGui.SameLine()
-    style.drawNodeRefInfo(self.tvRef)
+    style.drawNodeRefInfo(self.tvRef, true)
 
     style.sectionHeaderEnd()
 end

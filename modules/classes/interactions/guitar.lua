@@ -59,7 +59,7 @@ function guitar:draw()
     self.guitarRef, changed = ImGui.InputTextWithHint('##guitarRef', '$/mod/#guitar', self.guitarRef, 250)
     if changed then self.project:save() end
     ImGui.SameLine()
-    style.drawNodeRefInfo(self.guitarRef)
+    style.drawNodeRefInfo(self.guitarRef, true)
 
     style.sectionHeaderEnd()
 end

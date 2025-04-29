@@ -62,7 +62,7 @@ function tea:draw()
     self.teapotRef, changed = ImGui.InputTextWithHint('##teapot', '$/mod/#teapot', self.teapotRef, 250)
     if changed then self.project:save() end
     ImGui.SameLine()
-    style.drawNodeRefInfo(self.teapotRef)
+    style.drawNodeRefInfo(self.teapotRef, true)
 
     style.mutedText("Teacup:")
     ImGui.SameLine()
@@ -71,7 +71,7 @@ function tea:draw()
     self.teacupRef, changed = ImGui.InputTextWithHint('##teacup', '$/mod/#teacup', self.teacupRef, 250)
     if changed then self.project:save() end
     ImGui.SameLine()
-    style.drawNodeRefInfo(self.teacupRef)
+    style.drawNodeRefInfo(self.teacupRef, true)
 
     style.sectionHeaderEnd()
 end

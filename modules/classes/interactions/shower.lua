@@ -59,7 +59,7 @@ function shower:draw()
     self.showerRef, changed = ImGui.InputTextWithHint('##showerRef', '$/mod/#shower', self.showerRef, 250)
     if changed then self.project:save() end
     ImGui.SameLine()
-    style.drawNodeRefInfo(self.showerRef)
+    style.drawNodeRefInfo(self.showerRef, true)
 
     style.sectionHeaderEnd()
 end

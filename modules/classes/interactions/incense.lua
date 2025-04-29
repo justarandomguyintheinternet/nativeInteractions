@@ -134,7 +134,7 @@ function incense:draw()
         self:reset()
     end
     ImGui.SameLine()
-    style.drawNodeRefInfo(self.incenseRef)
+    style.drawNodeRefInfo(self.incenseRef, true)
 
     style.mutedText("Reset Distance:")
     ImGui.SameLine()

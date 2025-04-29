@@ -21,7 +21,7 @@ function mirror:new(mod, project)
     o.startFactID = 11
 
     o.name = "Mirror Interaction"
-    o.worldIcon = "ChoiceIcons.ShowerIcon"
+    o.worldIcon = "ChoiceIcons.MirrorIcon"
     o.worldIconRange = 5
     o.interactionAngle = 80
     o.interactionRange = 1.5
@@ -67,7 +67,7 @@ function mirror:draw()
     style.tooltip("Mirror device which handles the visual activation effect, and off state.")
     if changed then self.project:save() end
     ImGui.SameLine()
-    style.drawNodeRefInfo(self.mirrorDeviceRef)
+    style.drawNodeRefInfo(self.mirrorDeviceRef, true)
 
     style.mutedText("Mirror Mesh:")
     ImGui.SameLine()
@@ -77,9 +77,10 @@ function mirror:draw()
     style.tooltip("Special mesh which renders the mirror reflection.")
     if changed then self.project:save() end
     ImGui.SameLine()
-    local refNull = NodeRefToHash(CreateNodeRef(self.mirrorMeshRef)) == 0
-    style.styledText(refNull and IconGlyphs.AlertOutline or IconGlyphs.CheckCircleOutline, refNull and 0xFF0000FF or 0xFF00FFFF)
-    style.tooltip(refNull and "Not a valid NodeRef" or "NodeRef format is correct, but node presence check is not supported.")
+    style.drawNodeRefInfo(self.mirrorMeshRef, false)
+    -- local refNull = NodeRefToHash(CreateNodeRef(self.mirrorMeshRef)) == 0
+    -- style.styledText(refNull and IconGlyphs.AlertOutline or IconGlyphs.CheckCircleOutline, refNull and 0xFF0000FF or 0xFF00FFFF)
+    -- style.tooltip(refNull and "Not a valid NodeRef" or "NodeRef format is correct, but node presence check is not supported.")
 
     style.sectionHeaderEnd()
 end

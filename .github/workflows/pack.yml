@@ -20,7 +20,7 @@ jobs:
           sudo mkdir -p /nativeInteractionsPacked/bin/x64/plugins/cyber_engine_tweaks/mods/entSpawner/data/
       - name: Copy files
         run: |
-          sudo cp -r prefabs /nativeInteractionsPacked/bin/x64/plugins/cyber_engine_tweaks/mods/entSpawner/data/
+          sudo cp -r favorite /nativeInteractionsPacked/bin/x64/plugins/cyber_engine_tweaks/mods/entSpawner/data/
           sudo cp -r nativeInteractions.archive /nativeInteractionsPacked/archive/pc/mod
           sudo cp -r r6 /nativeInteractionsPacked/
           sudo cp -r projects /nativeInteractionsPacked/bin/x64/plugins/cyber_engine_tweaks/mods/nativeInteractions/

@@ -186,7 +186,7 @@ function biliard:draw()
     ImGui.SameLine()
     style.drawNodeRefInfo(self.stickRef, true)
 
-    style.mutedText("Main Ball:")
+    style.mutedText("Ball:")
     ImGui.SameLine()
     ImGui.SetCursorPosX(self.maxNodeRefPropertyWidth)
     style.setNextItemWidth(300)

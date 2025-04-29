@@ -57,6 +57,9 @@ function mod:new()
             world.onSessionStart()
             resourceHelper.endEvents = {}
             resourceHelper.patches = {}
+            self.baseUI.interactionUI.paused = false
+            self.baseUI.interactionUI.fastForward = false
+            self.baseUI.interactionUI.cameraExternal = false
 
             if self.baseUI.interactionUI.interaction then
                 self.baseUI.interactionUI.interaction:editEnd()

@@ -318,10 +318,7 @@ function miscUtils.getDerivedClasses(base)
 end
 
 function miscUtils.nodeRefStringToHashString(data)
-    local hash, _ = data:gsub("#", "")
-    hash, _ = tostring(FNV1a64(hash)):gsub("ULL", "")
-
-    return hash
+    return tostring(ResolveNodeRef(CreateNodeRef(data), GlobalNodeID.GetRoot()).hash):gsub("ULL", "")
 end
 
 function miscUtils.nodeRefToHashString(ref)
@@ -332,10 +329,7 @@ function miscUtils.nodeRefToHashString(ref)
 end
 
 function miscUtils.getEntityByRef(ref)
-    local hash, _ = ref:gsub("#", "")
-    hash = FNV1a64(hash)
-
-    return Game.FindEntityByID(entEntityID.new({ hash = hash }))
+    return Game.FindEntityByID(entEntityID.new({ hash = ResolveNodeRef(CreateNodeRef(ref), GlobalNodeID.GetRoot()).hash }))
 end
 
 function miscUtils.insertClipboardValue(key, data)

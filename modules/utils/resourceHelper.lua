@@ -143,6 +143,12 @@ function helper.patchNodeRefs(scene, path)
                         objectRef.reference = CreateNodeRef(replacement)
                         node.questNode.type.objectRef = objectRef
                     end
+                elseif node.questNode.type:IsA("questShowWorldNode_NodeType") then
+                    local replacement = helper.patches[path].propMap[utils.nodeRefToHashString(node.questNode.type.objectRef)]
+
+                    if replacement then
+                        node.questNode.type.objectRef = CreateNodeRef(replacement)
+                    end
                 end
             elseif node.questNode then
                 if node.questNode:IsA("questEventManagerNodeDefinition") then

@@ -245,9 +245,7 @@ function style.drawNoBGConditionalButton(condition, text, greyed)
 end
 
 function style.drawNodeRefInfo(ref)
-    local hash, _ = ref:gsub("#", "")
-    hash = FNV1a64(hash)
-
+    local hash = ResolveNodeRef(CreateNodeRef(ref), GlobalNodeID.GetRoot()).hash
     local entity = Game.FindEntityByID(entEntityID.new({ hash = hash }))
 
     if not entity then

@@ -78,9 +78,6 @@ function mirror:draw()
     if changed then self.project:save() end
     ImGui.SameLine()
     style.drawNodeRefInfo(self.mirrorMeshRef, false)
-    -- local refNull = NodeRefToHash(CreateNodeRef(self.mirrorMeshRef)) == 0
-    -- style.styledText(refNull and IconGlyphs.AlertOutline or IconGlyphs.CheckCircleOutline, refNull and 0xFF0000FF or 0xFF00FFFF)
-    -- style.tooltip(refNull and "Not a valid NodeRef" or "NodeRef format is correct, but node presence check is not supported.")
 
     style.sectionHeaderEnd()
 end

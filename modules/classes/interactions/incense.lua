@@ -35,7 +35,7 @@ function incense:new(mod, project)
 
     o.maxNodeRefPropertyWidth = nil
     o.incenseRef = ""
-    o.resetDistance = 5
+    o.resetDistance = 8
     o.used = false
     o.incensePosition = nil
     o.incenseOrientation = nil

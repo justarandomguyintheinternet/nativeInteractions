@@ -14,10 +14,12 @@ jobs:
       - name: Setup folders
         run: |
           cd ${{ github.workspace }}
+          sudo mkdir -p /nativeInteractionsPacked/archive/pc/mod
           sudo mkdir -p /nativeInteractionsPacked/r6/scripts/
           sudo mkdir -p /nativeInteractionsPacked/bin/x64/plugins/cyber_engine_tweaks/mods/nativeInteractions/
       - name: Copy files
         run: |
+          sudo cp -r nativeInteractions.archive /nativeInteractionsPacked/archive/pc/mod
           sudo cp -r r6 /nativeInteractionsPacked/
           sudo cp -r projects /nativeInteractionsPacked/bin/x64/plugins/cyber_engine_tweaks/mods/nativeInteractions/
           sudo cp -r modules /nativeInteractionsPacked/bin/x64/plugins/cyber_engine_tweaks/mods/nativeInteractions/

@@ -62,6 +62,7 @@ function editUI.draw(mod)
     if style.buttonNoBG(IconGlyphs.Plus) then
         local data = interactions[editUI.newInteractionIndex + 1].class:new(editUI.mod, editUI.project)
         editUI.project:addInteraction(data, editUI.newInteractionName)
+        editUI.newInteractionName = "New Interaction"
     end
 
     style.spacedSeparator()

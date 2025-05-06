@@ -36,7 +36,7 @@ function savedUI.drawLoaded()
     style.mutedText("Name:")
     ImGui.SameLine()
     ImGui.SetCursorPosX(savedUI.maxLoadedTextWidth)
-    savedUI.loadedFileName, _ = ImGui.InputTextWithHint('##Name', 'Name...', savedUI.loadedFileName, 20)
+    savedUI.loadedFileName, _ = ImGui.InputTextWithHint('##Name', 'Name...', savedUI.loadedFileName, 40)
     if ImGui.IsItemDeactivatedAfterEdit() then
         local currentProject = savedUI.mod.baseUI.editUI.project
 
@@ -58,7 +58,7 @@ end
 
 function savedUI.drawCreateNew()
     style.setNextItemWidth(250)
-    savedUI.newFileName, _ = ImGui.InputTextWithHint('##newName', 'Project Name...', savedUI.newFileName, 20)
+    savedUI.newFileName, _ = ImGui.InputTextWithHint('##newName', 'Project Name...', savedUI.newFileName, 40)
     ImGui.SameLine()
 
     style.pushButtonNoBG(true)

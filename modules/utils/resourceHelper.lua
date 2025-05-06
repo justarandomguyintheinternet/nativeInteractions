@@ -8,7 +8,7 @@ local helper = {
 function helper.init()
     Observe('PlayerPuppet', 'OnNIFSceneEvent', function (_, event)
         if helper.endEvents[event.eventAction.value] then
-            helper.endEvents[event.eventAction.value]()
+            helper.endEvents[event.eventAction.value](Game.GetQuestsSystem():GetFact("nif_scene_active"))
             helper.endEvents[event.eventAction.value] = nil
             Game.GetQuestsSystem():SetFact("nif_scene_active", 0)
         end

@@ -85,8 +85,11 @@ function interaction:start()
 
     -- Delay this, so that if during the same tick another one stops, there is time for it to properly shutdown, before this one starts
     Cron.AfterTicks(2, function ()
-        local success = resourceHelper.registerSceneEnd(self.endEvent, function ()
+        local success = resourceHelper.registerSceneEnd(self.endEvent, function (sceneActive)
             self.sceneRunning = false
+            if sceneActive == 1 then
+                world.forceIcons()
+            end
             print("Scene end")
         end)
 

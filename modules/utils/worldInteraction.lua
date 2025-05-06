@@ -28,7 +28,7 @@ function world.removeInteraction(key)
             Game.GetMappinSystem():UnregisterMappin(world.interactions[key].pinID)
         end
 
-        table.remove(world.interactions, key)
+        world.interactions[key] = nil
     end
 end
 
@@ -72,7 +72,7 @@ function world.update()
     local playerForward = GetPlayer():GetWorldForward()
     posPlayer.z = posPlayer.z + 1
 
-    for _, interaction in pairs(world.interactions) do
+    for key, interaction in pairs(world.interactions) do
         local update = interaction.shown
         local interactionAngle = 180 - Vector4.GetAngleBetween(playerForward, Vector4.new(posPlayer.x - interaction.pos.x, posPlayer.y - interaction.pos.y, posPlayer.z - interaction.pos.z, 0))
 
@@ -115,6 +115,17 @@ function world.update()
 
     for _, data in pairs(showInteractions) do
         data.interaction.callback(data.interaction.shown)
+    end
+end
+
+--Fix to make sure all icons are visible, to fix bug where after a scene some would be missing
+function world.forceIcons()
+    for _, interaction in pairs(world.interactions) do
+        if interaction.pinID then
+            Game.GetMappinSystem():UnregisterMappin(interaction.pinID)
+            local data = MappinData.new({ mappinType = 'Mappins.DefaultStaticMappin', variant = gamedataMappinVariant.UseVariant, visibleThroughWalls = false })
+            interaction.pinID = Game.GetMappinSystem():RegisterMappin(data, interaction.pos)
+        end
     end
 end
 

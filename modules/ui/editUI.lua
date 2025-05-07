@@ -14,7 +14,8 @@ local interactions = {
     { name = "", class = require("modules/classes/interactions/biliard") },
     { name = "", class = require("modules/classes/interactions/meditate") },
     { name = "", class = require("modules/classes/interactions/dance") },
-    { name = "", class = require("modules/classes/interactions/chair") }
+    { name = "", class = require("modules/classes/interactions/chair") },
+    { name = "", class = require("modules/classes/interactions/lean") }
 }
 
 ---@class editUI

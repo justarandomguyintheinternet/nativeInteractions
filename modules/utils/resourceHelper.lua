@@ -23,6 +23,7 @@ function helper.init()
         helper.patchChoiceNodes(scene, path)
         helper.patchOffsets(scene, path)
         helper.patchNodeRefs(scene, path)
+        helper.patchLocalization(scene, path)
     end)
 end
 
@@ -182,6 +183,24 @@ function helper.patchNodeRefs(scene, path)
         end
     end
     scene.debugSymbols.performersDebugSymbols = performers
+end
+
+function helper.patchLocalization(scene, path)
+    if not helper.patches[path].locMap then return end
+
+    local store = scene.screenplayStore
+    local options = store.options
+
+    for key, option in pairs(options or {}) do
+        local replacement = helper.patches[path].locMap[option.itemId.id]
+
+        if replacement then
+            options[key].locstringId = scnlocLocstringId.new({ ruid = replacement})
+        end
+    end
+
+    store.options = options
+    scene.screenplayStore = store
 end
 
 function helper.registerPatch(scenePath, patchData)

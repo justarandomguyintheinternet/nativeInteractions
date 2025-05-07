@@ -9,6 +9,8 @@ local workspot = require("modules/classes/interactions/workspot")
 ---@field glassRef string
 ---@field enableDrink boolean
 ---@field enableSmoke boolean
+---@field isDrinkWhiskey boolean
+---@field isDrinkAlcohol boolean
 ---@field drinkLevel number
 ---@field resetDistance number
 local bar = setmetatable({}, { __index = workspot })
@@ -36,6 +38,8 @@ function bar:new(mod, project)
     o.glassRef = ""
     o.enableDrink = true
     o.enableSmoke = true
+    o.isDrinkWhiskey = true
+    o.isDrinkAlcohol = true
     o.resetDistance = 15
 
     o.drinkLevel = 0
@@ -66,6 +70,12 @@ function bar:getPatchData()
         [utils.nodeRefStringToHashString("$/nif_glass")] = self.glassRef
     }
 
+    if not self.isDrinkWhiskey then
+        data.locMap = {
+            [6146] = CreateCRUID(1794109860333555716ULL)
+        }
+    end
+
     return data
 end
 
@@ -73,6 +83,7 @@ function bar:start()
     if not self.sceneRunning then
         Game.GetQuestsSystem():SetFact("nif_drink_level", self.drinkLevel)
         Game.GetQuestsSystem():SetFact("nif_enable_smoke", self.enableSmoke and 1 or 0)
+        Game.GetQuestsSystem():SetFact("nif_drink_alcoholic", self.isDrinkAlcohol and 1 or 0)
     end
 
     workspot.start(self)
@@ -119,7 +130,7 @@ function bar:draw()
         self.maxActionPropertyWidth = utils.getTextMaxWidth({ "Enable Whiskey Drinking", "Enable Smoking" }) + 4 * ImGui.GetStyle().ItemSpacing.x
     end
 
-    style.mutedText("Enable Whiskey Drinking:")
+    style.mutedText("Enable Drinking:")
     ImGui.SameLine()
     ImGui.SetCursorPosX(self.maxActionPropertyWidth)
     self.enableDrink, changed = ImGui.Checkbox('##enableDrink', self.enableDrink)
@@ -140,8 +151,22 @@ function bar:draw()
     style.sectionHeaderStart("DRINK")
 
     if not self.maxNodeRefPropertyWidth then
-        self.maxNodeRefPropertyWidth = utils.getTextMaxWidth({ "Whiskey Glass", "Reset Distance" }) + 4 * ImGui.GetStyle().ItemSpacing.x
+        self.maxNodeRefPropertyWidth = utils.getTextMaxWidth({ "Is Drink Whiskey", "Is Alcoholic", "Whiskey Glass", "Reset Distance" }) + 4 * ImGui.GetStyle().ItemSpacing.x
     end
+
+    style.mutedText("Is Drink Whiskey:")
+    ImGui.SameLine()
+    ImGui.SetCursorPosX(self.maxNodeRefPropertyWidth)
+    self.isDrinkWhiskey, changed = ImGui.Checkbox('##isDrinkWhiskey', self.isDrinkWhiskey)
+    if changed then self.project:save() end
+    style.tooltip("Determines the interaction text.")
+
+    style.mutedText("Is Alcoholic:")
+    ImGui.SameLine()
+    ImGui.SetCursorPosX(self.maxNodeRefPropertyWidth)
+    self.isDrinkAlcohol, changed = ImGui.Checkbox('##isDrinkAlcohol', self.isDrinkAlcohol)
+    if changed then self.project:save() end
+    style.tooltip("Determines if drinking applies the drunk effect.")
 
     style.mutedText("Whiskey Glass:")
     ImGui.SameLine()
@@ -177,6 +202,8 @@ function bar:save()
     data.enableDrink = self.enableDrink
     data.enableSmoke = self.enableSmoke
     data.resetDistance = self.resetDistance
+    data.isDrinkWhiskey = self.isDrinkWhiskey
+    data.isDrinkAlcohol = self.isDrinkAlcohol
 
     return data
 end

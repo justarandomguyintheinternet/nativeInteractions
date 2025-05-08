@@ -16,7 +16,7 @@ function chair:new(mod, project)
     o.startFactID = 15
 
     o.name = "Chair Interaction"
-    o.worldIcon = "ChoiceIcons.WaitIcon"
+    o.worldIcon = "ChoiceIcons.SitIcon"
     o.worldIconRange = 5
     o.interactionAngle = 80
     o.interactionRange = 1.5

@@ -9,5 +9,18 @@ class NativeInteractions extends ScriptableService {
         .AddTarget(ResourceTarget.Type(n"scnSceneResource"));
     }
 
+    public func IsCustomMappin(mappin: wref<IMappin>) -> Bool {
+        return false;
+    }
+
     private cb func ProcessScene(event: ref<ResourceEvent>) {};
+}
+
+@wrapMethod(WorldMappinsContainerController)
+public func CreateMappinUIProfile(mappin: wref<IMappin>, mappinVariant: gamedataMappinVariant, customData: ref<MappinControllerCustomData>) -> MappinUIProfile {
+    let service = GameInstance.GetScriptableServiceContainer().GetService(n"NativeInteractions") as NativeInteractions;
+    if (IsDefined(service) && service.IsCustomMappin(mappin)) {
+        return MappinUIProfile.Create(r"base\\gameplay\\gui\\widgets\\mappins\\quest\\default_mappin.inkwidget", t"MappinUISpawnProfile.MediumRange", t"WorldMappinUIProfile.nif");
+    }
+    return wrappedMethod(mappin, mappinVariant, customData);
 }

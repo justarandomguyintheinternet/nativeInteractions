@@ -46,6 +46,9 @@ function world.disableInteraction(key, state)
 end
 
 function world.init()
+    TweakDB:CloneRecord("WorldMappinUIProfile.nif", "WorldMappinUIProfile.Default")
+    TweakDB:SetFlat("WorldMappinUIProfile.nif.visibleInTier", { true, true, true, false, false })
+
     ObserveAfter("BaseMappinBaseController", "UpdateRootState", function(this) -- Custom pin texture
         local mappin = this:GetMappin()
         if not mappin then return end
@@ -60,6 +63,19 @@ function world.init()
                 -- TODO: Bind to style
             end
         end
+    end)
+
+    Override("NativeInteractions", "IsCustomMappin", function (_, mappin)
+        if mappin then
+            local pos = mappin:GetWorldPosition()
+            for _, interaction in pairs(world.interactions) do
+                if Vector4.Distance(pos, interaction.pos) < 0.05 and interaction.pinID ~= nil then
+                    return true
+                end
+            end
+        end
+
+        return false
     end)
 end
 

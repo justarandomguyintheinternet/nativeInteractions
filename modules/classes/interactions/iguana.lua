@@ -22,12 +22,12 @@ function iguana:new(mod, project)
     o.endEvent = "nif_exit_iguana"
     o.startFactID = 18
 
-    o.name = "Incense Interaction"
+    o.name = "Iguana Interaction"
     o.worldIcon = "ChoiceIcons.UseIcon"
     o.worldIconRange = 5
     o.interactionAngle = 80
     o.interactionRange = 1.5
-    o.editorIcon = IconGlyphs.Torch
+    o.editorIcon = IconGlyphs.Tortoise
 
     o.maxNodeRefPropertyWidth = nil
     o.iguanaRef = ""
@@ -38,6 +38,12 @@ function iguana:new(mod, project)
 
     setmetatable(o, { __index = self })
    	return o
+end
+
+function iguana:load(data)
+    workspot.load(self, data)
+
+    CName.add("nif_iguana_choice")
 end
 
 function iguana:getPatchData()
@@ -53,22 +59,21 @@ end
 function iguana:start()
     if resourceHelper.endEvents[self.endEvent] and not self.animationActive then return end
 
-    -- set fact to jump to choice hub
+    Game.GetQuestsSystem():SetFact("nif_iguana_choice", 1)
 end
 
 function iguana:stop()
     if not self.sceneRunning or (resourceHelper.endEvents[self.endEvent] and not self.animationActive) then return end
 
-    -- set fact to close choice hub
+    Game.GetQuestsSystem():SetFact("nif_iguana_choice", 0)
 end
 
 function iguana:onUpdate()
-    -- Reset incense if far away
     local distance = GetPlayer():GetWorldPosition():Distance(ToVector4(self.worldIconPosition))
-    if distance < animationDistance and not self.animationActive and not resourceHelper.endEvents[self.endEvent] then
+    if distance < self.animationDistance and not self.animationActive and not resourceHelper.endEvents[self.endEvent] then
         workspot.start(self)
         self.animationActive = true
-    elseif distance > animationDistance and self.animationActive then
+    elseif distance > self.animationDistance and self.animationActive then
         workspot.stop(self)
         self.animationActive = false
     end
@@ -83,17 +88,16 @@ function iguana:draw()
         self.maxNodeRefPropertyWidth = utils.getTextMaxWidth({ "Iguana" }) + 4 * ImGui.GetStyle().ItemSpacing.x
     end
 
+    style.mutedText("Try to limit this interaction to at most one per location.")
+
     style.mutedText("Iguana:")
     ImGui.SameLine()
     ImGui.SetCursorPosX(self.maxNodeRefPropertyWidth)
     style.setNextItemWidth(300)
     self.iguanaRef, changed = ImGui.InputTextWithHint('##iguanaRef', '$/mod/#iguana', self.iguanaRef, 250)
     if changed then self.project:save() end
-    if ImGui.IsItemDeactivatedAfterEdit() then
-        self:reset()
-    end
     ImGui.SameLine()
-    style.drawNodeRefInfo(self.iguanaRef, true)
+    style.drawNodeRefInfo(self.iguanaRef, false)
 
     style.sectionHeaderEnd()
 end

@@ -108,6 +108,19 @@ function helper.patchNodeRefs(scene, path)
     end
     scene.props = props
 
+    -- NodeRefs in actors
+    local actors = scene.actors
+    for _, actor in pairs(actors) do
+        local replacement = helper.patches[path].propMap[utils.nodeRefToHashString(actor.spawnerParams.reference)]
+
+        if replacement then
+            local params = actor.spawnerParams
+            params.reference = CreateNodeRef(replacement)
+            actor.spawnerParams = params
+        end
+    end
+    scene.actors = actors
+
     -- NodeRefs graph
     for _, node in pairs(scene.sceneGraph.graph) do
         if node:IsA("scnSectionNode") then

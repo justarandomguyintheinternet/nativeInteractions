@@ -31,7 +31,7 @@ function iguana:new(mod, project)
 
     o.maxNodeRefPropertyWidth = nil
     o.iguanaRef = ""
-    o.animationDistance = 8
+    o.animationDistance = 35
 
     o.animationActive = false
     o.choiceActive = false
@@ -73,9 +73,11 @@ function iguana:onUpdate()
     if distance < self.animationDistance and not self.animationActive and not resourceHelper.endEvents[self.endEvent] then
         workspot.start(self)
         self.animationActive = true
+        SaveLocksManager.RequestSaveLockAdd("nif")
     elseif distance > self.animationDistance and self.animationActive then
         workspot.stop(self)
         self.animationActive = false
+        SaveLocksManager.RequestSaveLockRemove("nif")
     end
 end
 
@@ -89,6 +91,7 @@ function iguana:draw()
     end
 
     style.mutedText("Try to limit this interaction to at most one per location.")
+    style.mutedText(string.format("Distance between two iguanas should be at least %dm.", self.animationDistance * 2))
 
     style.mutedText("Iguana:")
     ImGui.SameLine()

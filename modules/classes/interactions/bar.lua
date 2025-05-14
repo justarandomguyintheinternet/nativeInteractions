@@ -99,6 +99,9 @@ end
 
 function bar:reset()
     self.drinkLevel = 0
+    if self.sceneRunning then
+        Game.GetQuestsSystem():SetFact("nif_drink_level", self.drinkLevel)
+    end
 
     local glass = utils.getEntityByRef(self.glassRef)
 

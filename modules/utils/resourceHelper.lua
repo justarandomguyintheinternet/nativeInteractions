@@ -163,6 +163,20 @@ function helper.patchNodeRefs(scene, path)
                     if replacement then
                         node.questNode.type.objectRef = CreateNodeRef(replacement)
                     end
+                elseif node.questNode.type:IsA("questEntityManagerToggleComponent_NodeType") then
+                    local params = node.questNode.type.params or {}
+
+                    for _, param in pairs(params) do
+                        local replacement = helper.patches[path].propMap[utils.nodeRefToHashString(param.objectRef.reference)]
+
+                        if replacement then
+                            local objectRef = param.objectRef
+                            objectRef.reference = CreateNodeRef(replacement)
+                            param.objectRef = objectRef
+                        end
+                    end
+
+                    node.questNode.type.params = params
                 end
             elseif node.questNode then
                 if node.questNode:IsA("questEventManagerNodeDefinition") then

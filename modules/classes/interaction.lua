@@ -86,11 +86,11 @@ function interaction:start()
     -- Delay this, so that if during the same tick another one stops, there is time for it to properly shutdown, before this one starts
     Cron.AfterTicks(2, function ()
         local success = resourceHelper.registerSceneEnd(self.endEvent, function (sceneActive)
+            utils.removeSaveLock()
             self.sceneRunning = false
             if sceneActive == 1 then
                 world.forceIcons()
             end
-            print("Scene end")
         end)
 
         if not success then
@@ -102,8 +102,7 @@ function interaction:start()
         resourceHelper.registerPatch(self.scene, self:getPatchData())
         Game.GetQuestsSystem():SetFact("nif_start_signal", 1)
         Game.GetQuestsSystem():SetFact("nif_interaction_id", self.startFactID)
-
-        print("Start", self.name)
+        utils.addSaveLock()
     end)
 end
 
@@ -111,7 +110,6 @@ function interaction:stop()
     if not self.sceneRunning then return end
 
     self.sceneRunning = false
-    print("Stop", self.name)
     Game.GetQuestsSystem():SetFact(self.skipFact, 1)
 end
 

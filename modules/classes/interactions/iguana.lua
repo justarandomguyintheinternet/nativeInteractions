@@ -73,11 +73,9 @@ function iguana:onUpdate()
     if distance < self.animationDistance and not self.animationActive and not resourceHelper.endEvents[self.endEvent] then
         workspot.start(self)
         self.animationActive = true
-        SaveLocksManager.RequestSaveLockAdd("nif")
     elseif distance > self.animationDistance and self.animationActive then
         workspot.stop(self)
         self.animationActive = false
-        SaveLocksManager.RequestSaveLockRemove("nif")
     end
 end
 

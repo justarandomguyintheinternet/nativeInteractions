@@ -1,5 +1,6 @@
 local miscUtils = {
-    data = {}
+    data = {},
+    saveLock = 0
 }
 
 ---@param origin table
@@ -368,6 +369,19 @@ function miscUtils.shortenPath(path, width, backwardsSlash)
     end
 
     return "..." .. path
+end
+
+function miscUtils.addSaveLock()
+    miscUtils.saveLock = miscUtils.saveLock + 1
+    SaveLocksManager.RequestSaveLockAdd("nif")
+end
+
+function miscUtils.removeSaveLock()
+    miscUtils.saveLock = math.max(0, miscUtils.saveLock - 1)
+
+    if miscUtils.saveLock == 0 then
+        SaveLocksManager.RequestSaveLockRemove("nif")
+    end
 end
 
 return miscUtils

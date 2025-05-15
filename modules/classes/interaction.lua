@@ -91,6 +91,7 @@ function interaction:start()
             if sceneActive == 1 then
                 world.forceIcons()
             end
+            self:onSceneEnd()
         end)
 
         if not success then
@@ -122,6 +123,8 @@ function interaction:remove()
         self.worldInteractionID = nil
     end
 end
+
+function interaction:onSceneEnd() end
 
 function interaction:sessionStart() end
 

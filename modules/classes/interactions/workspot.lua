@@ -95,7 +95,8 @@ function workspot:updatePreview()
     entity:SetWorldTransform(transform)
 end
 
-function workspot:draw()
+---@param pendingText string?
+function workspot:draw(pendingText)
     style.sectionHeaderStart("WORKSPOT POSITION")
 
     if not self.maxWorkspotPropertyWidth then
@@ -116,7 +117,7 @@ function workspot:draw()
     if self.workspotPositionPending then
         ImGui.SameLine()
         style.styledText(IconGlyphs.AlertOutline, 0xFF0000FF)
-        style.tooltip("Workspot position will be updated next time the interaction prompt gets hidden.")
+        style.tooltip(string.format("Workspot position will be updated %s", pendingText or "next time the interaction prompt gets hidden."))
     end
 
     style.mutedText("Workspot Orientation:")
@@ -133,7 +134,7 @@ function workspot:draw()
     if self.workspotRotationPending then
         ImGui.SameLine()
         style.styledText(IconGlyphs.AlertOutline, 0xFF0000FF)
-        style.tooltip("Workspot orientation will be updated next time the interaction prompt gets hidden.")
+        style.tooltip(string.format("Workspot rotation will be updated %s", pendingText or "next time the interaction prompt gets hidden."))
     end
 
     style.sectionHeaderEnd()

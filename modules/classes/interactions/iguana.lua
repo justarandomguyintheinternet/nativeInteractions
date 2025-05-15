@@ -80,7 +80,7 @@ function iguana:onUpdate()
 end
 
 function iguana:draw()
-    workspot.draw(self)
+    workspot.draw(self, "after getting at least " .. self.animationDistance .. "m from the interaction.")
 
     style.sectionHeaderStart("IGUANA")
 

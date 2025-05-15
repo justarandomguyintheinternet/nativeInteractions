@@ -3,6 +3,7 @@ native func Log(const text: script_ref<String>) -> Void
 @addMethod(PlayerPuppet)
 protected cb func OnNIFSceneEvent(event: ref<ActionEvent>) {}
 
+@if(ModuleExists("Codeware"))
 class NativeInteractions extends ScriptableService {
     private cb func OnLoad() {
         GameInstance.GetCallbackSystem().RegisterCallback(n"Resource/PostLoad", this, n"ProcessScene")

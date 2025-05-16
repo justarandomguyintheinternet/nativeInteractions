@@ -44,6 +44,7 @@ function mod:new()
         CName.add("nif_start_signal")
         CName.add("nif_interaction_id")
         CName.add("nif_scene_active")
+        CName.add("nif_iguana_idle")
         CName.add("nif")
 
         Observe('RadialWheelController', 'OnIsInMenuChanged', function(_, isInMenu)

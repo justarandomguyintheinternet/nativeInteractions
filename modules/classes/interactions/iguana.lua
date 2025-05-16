@@ -1,14 +1,16 @@
 local style = require("modules/ui/style")
 local utils = require("modules/utils/utils")
-local world = require("modules/utils/worldInteraction")
 local resourceHelper = require("modules/utils/resourceHelper")
 local workspot = require("modules/classes/interactions/workspot")
+local Cron = require("modules/utils/Cron")
 
 ---Class for iguana interaction
 ---@class iguana : workspot
 ---@field maxNodeRefPropertyWidth number?
 ---@field iguanaRef string
 ---@field animationDistance number
+---@field animationActive boolean
+---@field startCron number?
 local iguana = setmetatable({}, { __index = workspot })
 
 function iguana:new(mod, project)
@@ -34,7 +36,7 @@ function iguana:new(mod, project)
     o.animationDistance = 35
 
     o.animationActive = false
-    o.choiceActive = false
+    o.startCron = nil
 
     setmetatable(o, { __index = self })
    	return o
@@ -43,7 +45,7 @@ end
 function iguana:load(data)
     workspot.load(self, data)
 
-    CName.add("nif_iguana_choice")
+    CName.add("nif_iguana_idle")
 end
 
 function iguana:getPatchData()
@@ -56,26 +58,31 @@ function iguana:getPatchData()
     return data
 end
 
-function iguana:start()
-    if resourceHelper.endEvents[self.endEvent] and not self.animationActive then return end
-
-    Game.GetQuestsSystem():SetFact("nif_iguana_choice", 1)
-end
-
-function iguana:stop()
-    if not self.sceneRunning or (resourceHelper.endEvents[self.endEvent] and not self.animationActive) then return end
-
-    Game.GetQuestsSystem():SetFact("nif_iguana_choice", 0)
+function iguana:sessionStart()
+    self.animationActive = false
 end
 
 function iguana:onUpdate()
     local distance = GetPlayer():GetWorldPosition():Distance(ToVector4(self.worldIconPosition))
-    if distance < self.animationDistance and not self.animationActive and not resourceHelper.endEvents[self.endEvent] then
-        workspot.start(self)
+
+    if distance < self.animationDistance - 1 and not self.animationActive and not resourceHelper.endEvents[self.endEvent] and Game.GetQuestsSystem():GetFact("nif_iguana_idle") == 0 then
+        -- Delay needed for session start
+        self.startCron = Cron.After(0.1, function ()
+            Game.GetResourceDepot():RemoveResourceFromCache("nif\\quest\\iguana_idle.scene")
+            resourceHelper.registerPatch("nif\\quest\\iguana_idle.scene", self:getPatchData())
+            Game.GetQuestsSystem():SetFact("nif_interaction_id", 21)
+            Game.GetQuestsSystem():SetFact("nif_start_signal", 1)
+        end)
+
         self.animationActive = true
-    elseif distance > self.animationDistance and self.animationActive then
-        workspot.stop(self)
+    elseif distance > self.animationDistance + 1 and self.animationActive then
+        Game.GetQuestsSystem():SetFact("nif_iguana_idle", 0)
         self.animationActive = false
+
+        if self.startCron then
+            Cron.Halt(self.startCron)
+            self.startCron = nil
+        end
     end
 end
 

@@ -52,6 +52,7 @@ function mod:new()
 
         self.GameUI.OnSessionStart(function()
             self.runtimeData.inGame = true
+            Game.GetQuestsSystem():SetFact("nif_iguana_idle", 0)
             Game.GetQuestsSystem():SetFact("nif_scene_active", 0)
             manager.sessionStart()
             world.onSessionStart()

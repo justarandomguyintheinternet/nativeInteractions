@@ -75,7 +75,15 @@ function editUI.draw(mod)
 
     style.spacedSeparator()
 
-    ImGui.BeginChild("editUI", -1, math.min(20, #editUI.project.interactions) * ImGui.GetFrameHeightWithSpacing())
+    if #editUI.project.interactions == 0 then
+        style.mutedText("No interactions.")
+        return
+    end
+
+    local scroll = #editUI.project.interactions >= 20
+    if scroll then
+        ImGui.BeginChild("editUI", -1, 20 * ImGui.GetFrameHeightWithSpacing())
+    end
 
     for key, entry in pairs(editUI.project.interactions) do
         ImGui.PushID(key)
@@ -121,7 +129,9 @@ function editUI.draw(mod)
         ImGui.PopID()
     end
 
-    ImGui.EndChild()
+    if scroll then
+        ImGui.EndChild()
+    end
 end
 
 return editUI

@@ -208,6 +208,7 @@ function interactionUI.draw(mod)
         interactionUI.setPaused(false)
         interactionUI.setCameraExternal(false)
         interactionUI.setFastForward(false)
+        return
     end
     style.tooltip("Stop editing")
     ImGui.SameLine()

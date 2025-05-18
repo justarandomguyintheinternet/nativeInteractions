@@ -10,7 +10,7 @@
 ---
 ## Wiki
 - Guides on how to install, use and share mods made using the framework can be found on the wiki:
-# [Native Interactions Framework Wiki](https://wiki.redmodding.org/cyberpunk-2077-modding/modding-guides/world-editing/object-spawner)
+# [Native Interactions Framework Wiki](https://wiki.redmodding.org/cyberpunk-2077-modding/modding-guides/world-editing/native-interactions-framework)
 
 ---
 

@@ -1,4 +1,4 @@
-local CodewareVersion = "1.15.1"
+local CodewareVersion = "1.16.0"
 local ArchiveXLVersion = "1.22.0"
 local ModVersion = "1.0.0"
 local ModName = "Native Interactions"

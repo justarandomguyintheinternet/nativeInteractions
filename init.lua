@@ -46,6 +46,7 @@ function mod:new()
         CName.add("nif_scene_active")
         CName.add("nif_iguana_idle")
         CName.add("nif")
+        Game.GetQuestsSystem():SetFact("nif_iguana_idle", 0)
 
         Observe('RadialWheelController', 'OnIsInMenuChanged', function(_, isInMenu)
             self.runtimeData.inMenu = isInMenu

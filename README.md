@@ -5,7 +5,7 @@
 ---
 
 ## Installation
-- [Installation guide on the wiki](https://app.gitbook.com/o/-MP5ijqI11FeeX7c8-N8/s/4gzcGtLrr90pVjAWVdTc/modding-guides/world-editing/object-spawner/installation)
+- [Installation guide on the wiki](https://wiki.redmodding.org/cyberpunk-2077-modding/modding-guides/world-editing/native-interactions-framework/installation)
 
 ---
 ## Wiki

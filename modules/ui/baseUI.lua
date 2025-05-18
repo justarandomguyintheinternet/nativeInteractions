@@ -1,6 +1,6 @@
 local CodewareVersion = "1.16.0"
 local ArchiveXLVersion = "1.22.0"
-local ModVersion = "1.0.0"
+local ModVersion = "1.0.1"
 local ModName = "Native Interactions"
 
 local style = require("modules/ui/style")

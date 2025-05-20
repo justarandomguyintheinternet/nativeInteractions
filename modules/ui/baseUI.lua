@@ -1,4 +1,4 @@
-local CodewareVersion = "1.16.0"
+local CodewareVersion = "1.15.0"
 local ArchiveXLVersion = "1.22.0"
 local ModVersion = "1.0.1"
 local ModName = "Native Interactions"
@@ -25,13 +25,13 @@ function baseUI.init()
     if not ArchiveXL then
         table.insert(baseUI.requirementsIssues, "ArchiveXL is not installed")
     elseif not ArchiveXL.Require(ArchiveXLVersion) then
-        table.insert(baseUI.requirementsIssues, "ArchiveXL version is outdated, please update to at least" .. ArchiveXLVersion)
+        table.insert(baseUI.requirementsIssues, "ArchiveXL version is outdated, please update to at least " .. ArchiveXLVersion)
     end
 
     if not Codeware then
         table.insert(baseUI.requirementsIssues, "Codeware is not installed")
     elseif not Codeware.Require(CodewareVersion) then
-        table.insert(baseUI.requirementsIssues, "Codeware version is outdated, please update to  at least" .. CodewareVersion)
+        table.insert(baseUI.requirementsIssues, "Codeware version is outdated, please update to at least " .. CodewareVersion)
     end
 
     if not Game.GetScriptableServiceContainer():GetService("NativeInteractions") then

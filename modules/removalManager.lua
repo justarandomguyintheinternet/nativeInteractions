@@ -14,6 +14,30 @@ local data = {
             ["glen_wardrobe"] = {
                 name = "Wardrobe",
                 nodeID = 1691
+            },
+            ["glen_shower"] = {
+                name = "Shower",
+                nodeID = 47
+            },
+            ["glen_coffee"] = {
+                name = "Coffe Machine",
+                nodeID = 1358
+            },
+            ["glen_mirror"] = {
+                name = "Mirror",
+                nodeID = 220
+            },
+            ["glen_billiard"] = {
+                name = "Billard",
+                nodeID = 1518
+            },
+            ["glen_vinyl"] = {
+                name = "Vinyl",
+                nodeID = 1229
+            },
+            ["glen_sit"] = {
+                name = "Couch Sit",
+                nodeID = 4
             }
         }
     }

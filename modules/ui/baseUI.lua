@@ -1,6 +1,6 @@
 local CodewareVersion = "1.15.0"
 local ArchiveXLVersion = "1.22.0"
-local ModVersion = "1.0.1"
+local ModVersion = "1.0.2"
 local ModName = "Native Interactions"
 
 local style = require("modules/ui/style")
@@ -16,6 +16,7 @@ local baseUI = {
     savedUI = require("modules/ui/savedUI"),
     editUI = require("modules/ui/editUI"),
     interactionUI = require("modules/ui/interactionUI"),
+    removalsUI = require("modules/ui/removalsUI"),
     requirementsIssues = {},
     switchToEdit = false,
     switchToInteraction = false
@@ -76,6 +77,12 @@ function baseUI.draw(debug)
                 baseUI.switchToInteraction = false
                 ImGui.Spacing()
                 baseUI.interactionUI.draw(debug)
+                ImGui.EndTabItem()
+            end
+
+            if ImGui.BeginTabItem("Edit Removals") then
+                ImGui.Spacing()
+                baseUI.removalsUI.draw(debug)
                 ImGui.EndTabItem()
             end
 

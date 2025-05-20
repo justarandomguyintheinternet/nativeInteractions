@@ -6,6 +6,7 @@ local utils = require("modules/utils/utils")
 ---@field mod mod?
 ---@field name string
 ---@field interactions interaction[]
+---@field removals table
 ---@field enabled boolean
 local project = {}
 
@@ -15,6 +16,7 @@ function project:new(mod)
     o.mod = mod
     o.name = "Default Project"
     o.interactions = {}
+    o.removals = {}
     o.enabled = true
 
     self.__index = self
@@ -78,6 +80,7 @@ function project:save()
     for _, interaction in pairs(self.interactions) do
         table.insert(data.interactions, interaction:save())
     end
+    data.removals = utils.deepcopy(self.removals)
 
     config.saveFile(string.format("projects/%s.json", self.name), data)
 end

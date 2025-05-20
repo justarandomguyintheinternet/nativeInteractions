@@ -117,6 +117,7 @@ function savedUI.draw(mod)
 
             if ImGui.Button(IconGlyphs.TrayArrowDown) then
                 savedUI.mod.baseUI.editUI.project = project
+                savedUI.mod.baseUI.removalsUI.project = project
                 savedUI.loadedFileName = project.name
                 savedUI.mod.baseUI.switchToEdit = true
                 savedUI.mod.baseUI.interactionUI.projectUnload()
@@ -170,6 +171,7 @@ function savedUI.delete(project)
 
     if savedUI.mod.baseUI.editUI.project == project then
         savedUI.mod.baseUI.editUI.project = nil
+        savedUI.mod.baseUI.removalsUI.project = nil
         savedUI.mod.baseUI.interactionUI.projectUnload()
     end
 

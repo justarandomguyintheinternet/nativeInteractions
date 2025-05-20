@@ -1,4 +1,5 @@
 local utils = require("modules/utils/utils")
+local Cron = require("modules/utils/Cron")
 
 local helper = {
     patches = {},
@@ -24,11 +25,14 @@ function helper.init()
         helper.patchOffsets(scene, path)
         helper.patchNodeRefs(scene, path)
         helper.patchLocalization(scene, path)
+        helper.patchRemovals(scene, path)
     end)
 end
 
 -- Patch nodeIDs of choice hubs
 function helper.patchChoiceNodes(scene, path)
+    if not helper.patches[path].choiceID then return end
+
     local choiceIDs = {}
     local graph = scene.sceneGraph.graph
 
@@ -228,6 +232,23 @@ function helper.patchLocalization(scene, path)
 
     store.options = options
     scene.screenplayStore = store
+end
+
+function helper.patchRemovals(scene, path)
+    if not helper.patches[path].removals then return end
+
+    Cron.NextTick(function ()
+        Game.GetResourceDepot():RemoveResourceFromCache(path)
+    end)
+
+    -- Patch out any unwanted choice nodes
+    for _, node in pairs(scene.sceneGraph.graph) do
+        if node:IsA("scnChoiceNode") then
+            if utils.has_value(helper.patches[path].removals, node.nodeId.id) then
+                node.options = {}
+            end
+        end
+    end
 end
 
 function helper.registerPatch(scenePath, patchData)

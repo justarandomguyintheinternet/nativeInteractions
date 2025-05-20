@@ -19,6 +19,7 @@ local style = require("modules/ui/style")
 local resourceHelper = require("modules/utils/resourceHelper")
 local manager = require("modules/projectsManager")
 local world = require("modules/utils/worldInteraction")
+local removals = require("modules/removalManager")
 
 ---@class mod
 ---@field runtimeData {cetOpen: boolean, inGame: boolean, inMenu: boolean}
@@ -41,6 +42,7 @@ function mod:new()
         resourceHelper.init()
         manager.init(self)
         world.init()
+        removals.init(self)
         CName.add("nif_start_signal")
         CName.add("nif_interaction_id")
         CName.add("nif_scene_active")

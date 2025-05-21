@@ -17,7 +17,7 @@ function removalsUI.drawScene(scene)
             local tooltip = ""
 
             if alreadyRemoved then
-                tooltip = "Already removed in:\n"
+                tooltip = "Already removed by the following project(s):\n"
                 for _, project in pairs(projects) do
                     tooltip = tooltip .. project.name .. "\n"
                 end

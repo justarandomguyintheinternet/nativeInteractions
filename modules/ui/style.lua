@@ -103,7 +103,6 @@ end
 ---@param text string
 ---@param tooltip string?
 function style.sectionHeaderStart(text, tooltip)
-    ImGui.PushStyleColor(ImGuiCol.Text, style.mutedColor)
     ImGui.SetWindowFontScale(0.85)
     ImGui.Text(text)
 
@@ -112,7 +111,6 @@ function style.sectionHeaderStart(text, tooltip)
     end
 
     ImGui.SetWindowFontScale(1)
-    ImGui.PopStyleColor()
     ImGui.Separator()
     ImGui.Spacing()
 
@@ -262,6 +260,18 @@ function style.drawNodeRefInfo(ref, shouldBeEntity)
         style.styledText(IconGlyphs.CheckCircleOutline, 0xFF00FF00)
         style.tooltip("NodeRef resolved to entity")
     end
+end
+
+function style.drawHelp(text, link)
+    style.pushButtonNoBG(true)
+    if ImGui.Button(IconGlyphs.HelpCircleOutline) then
+        ImGui.SetClipboardText(link)
+        ImGui.ShowToast(ImGui.Toast.new(ImGui.ToastType.Success, 2500, "Copied wiki link to clipboard"))
+    end
+    style.tooltip(text .. "\n\n [CLICK] Copy wiki link to clipboard")
+    style.pushButtonNoBG(false)
+
+    return false
 end
 
 return style

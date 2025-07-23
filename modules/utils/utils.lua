@@ -384,4 +384,13 @@ function miscUtils.removeSaveLock()
     end
 end
 
+function miscUtils.getPrimaryKey(locKey)
+    local key = locKey:gsub("%D", "")
+
+    if key == "" then
+        return LocKey(1484)
+    end
+    return LocKey(tonumber(key))
+end
+
 return miscUtils

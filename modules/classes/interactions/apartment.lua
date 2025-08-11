@@ -144,24 +144,24 @@ function apartment:getJournalPatch()
                     local pin = gameJournalPointOfInterestMappin.new()
 
                     pin.id = self.purchasedFact
-                    pin.typedVariant = gamemappinsCommonVariant.new()
-                    pin.typedVariant.variant = gamedataMappinVariant.Zzz05_ApartmentToPurchaseVariant
-                    -- pin.staticNodeRef = CreateNodeRef("$/nif_origin/#nif_origin_origin")
-                    -- pin.dynamicEntityRef.reference = CreateNodeRef("$/nif_origin/#nif_origin_origin")
+                    local data = pin.mappinData
+                    data.typedVariant = gamemappinsCommonVariant.new()
+                    data.typedVariant.variant = gamedataMappinVariant.Zzz05_ApartmentToPurchaseVariant
+                    pin.mappinData = data
                     pin.offset = ToVector3(self.apartmentPurchasePosition)
 
                     return pin
                 end
-            }, --Game.GetJournalManager():ChangeEntryState('points_of_interest/safehouses/test', 'gameJournalPointOfInterestMappin', gameJournalEntryState.Active, gameJournalNotifyOption.Notify)
+            },
             ["points_of_interest/safehouses"] = {
                 getEntry = function ()
                     local pin = gameJournalPointOfInterestMappin.new()
 
                     pin.id = self.purchasedFact
-                    pin.typedVariant = gamemappinsCommonVariant.new()
-                    pin.typedVariant.variant = gamedataMappinVariant.ApartmentVariant
-                    -- pin.staticNodeRef = CreateNodeRef("$/nif_origin/#nif_origin_origin")
-                    -- pin.dynamicEntityRef.reference = CreateNodeRef("$/nif_origin/#nif_origin_origin")
+                    local data = pin.mappinData
+                    data.typedVariant = gamemappinsCommonVariant.new()
+                    data.typedVariant.variant = gamedataMappinVariant.ApartmentVariant
+                    pin.mappinData = data
                     pin.offset = ToVector3(self.apartmentPurchasedPosition)
 
                     return pin

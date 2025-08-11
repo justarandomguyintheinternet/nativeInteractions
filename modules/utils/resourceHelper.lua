@@ -30,8 +30,6 @@ function helper.init()
     end)
 
     Observe('NativeInteractions', 'ProcessJournal', function(_, event)
-        print("Patching journal", event:GetPath():ToString())
-
         local journal = event:GetResource().entry
 
         for _, patch in pairs(helper.journalPatches) do
@@ -48,36 +46,6 @@ function helper.init()
             end
         end
     end)
-end
-
-function helper.patchJournalPOIs(journal, poi, id)
-    for _, folder in pairs(journal.entries) do
-        if folder.id == "points_of_interest" then
-            for _, group in pairs(folder.entries) do
-                if group.id == poi.groupID then
-                    local pin = gameJournalPointOfInterestMappin.new()
-
-                    if id == "" then return end
-
-                    pin.id = id
-                    pin.typedVariant = gamemappinsCommonVariant.new()
-                    pin.typedVariant.variant = poi.variant
-                    pin.staticNodeRef = CreateNodeRef("$/nif_origin/#nif_origin_origin")
-                    pin.dynamicEntityRef.reference = CreateNodeRef("$/nif_origin/#nif_origin_origin")
-                    pin.offset = poi.getPosition()
-
-                    print(pin.offset, pin.staticNodeRef, pin.typedVariant.variant, pin.id)
-
-                    local entries = group.entries
-                    table.insert(entries, pin)
-                    group.entries = entries
-                    print("patched")
-                    break
-                end
-            end
-            break
-        end
-    end
 end
 
 -- Patch nodeIDs of choice hubs

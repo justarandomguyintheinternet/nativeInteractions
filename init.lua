@@ -20,6 +20,7 @@ local resourceHelper = require("modules/utils/resourceHelper")
 local manager = require("modules/projectsManager")
 local world = require("modules/utils/worldInteraction")
 local removals = require("modules/removalManager")
+local apartmentManager = require("modules/apartmentManager")
 
 ---@class mod
 ---@field runtimeData {cetOpen: boolean, inGame: boolean, inMenu: boolean}
@@ -43,6 +44,7 @@ function mod:new()
         manager.init(self)
         world.init()
         removals.init(self)
+        apartmentManager.init()
         CName.add("nif_start_signal")
         CName.add("nif_interaction_id")
         CName.add("nif_scene_active")
@@ -73,6 +75,7 @@ function mod:new()
         end)
 
         self.GameUI.OnSessionEnd(function()
+            manager.sessionEnd()
             self.runtimeData.inGame = false
             Cron.HaltAll()
         end)
@@ -81,6 +84,10 @@ function mod:new()
 
         if self.runtimeData.inGame then
         end
+
+        -- Allow us to patch the journal
+        Game.GetResourceDepot():RemoveResourceFromCache("nif\\dummy.journal")
+        ArchiveXL.Reload()
     end)
 
     registerForEvent("onUpdate", function (dt)

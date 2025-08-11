@@ -33,6 +33,12 @@ function manager.sessionStart()
     end
 end
 
+function manager.sessionEnd()
+    for _, project in pairs(manager.projects) do
+        project:sessionEnd()
+    end
+end
+
 function manager.addProject(project)
     table.insert(manager.projects, project)
 end

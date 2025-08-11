@@ -128,6 +128,8 @@ function interaction:onSceneEnd() end
 
 function interaction:sessionStart() end
 
+function interaction:sessionEnd() end
+
 function interaction:onUpdate() end
 
 function interaction:draw() end

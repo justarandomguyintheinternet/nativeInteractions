@@ -15,3 +15,5 @@ resource:
       - ngplus.quest
     cyberpunk2077_ep1.quest:
       - ngplus.quest
+journal:
+  - nif\dummy.journal

@@ -65,6 +65,12 @@ function project:sessionStart()
     end
 end
 
+function project:sessionEnd()
+    for _, interaction in pairs(self.interactions) do
+        interaction:sessionEnd()
+    end
+end
+
 function project:onUpdate()
     for _, interaction in pairs(self.interactions) do
         interaction:onUpdate()

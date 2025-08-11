@@ -30,6 +30,7 @@ local apartmentManager = require("modules/apartmentManager")
 ---@field messageLocKey string
 ---@field tutorialLocKey string
 ---@field tutorialEnabled boolean
+---@field purchaseMappinID userdata
 local apartment = setmetatable({}, { __index = workspot })
 
 function apartment:new(mod, project)
@@ -81,16 +82,26 @@ function apartment:new(mod, project)
     o.apartmentVideo = ""
     o.tutorialLocKey = ""
 
+    o.purchaseMappinID = nil
+
     setmetatable(o, { __index = self })
    	return o
 end
 
+local function reloadJournalOnEdit()
+    if ImGui.IsItemDeactivatedAfterEdit() then
+        Game.GetResourceDepot():RemoveResourceFromCache("nif\\dummy.journal")
+        ArchiveXL.Reload()
+    end
+end
+--Game.GetJournalManager():ChangeEntryState('points_of_interest/safehouses/test', 'gameJournalPointOfInterestMappin', gameJournalEntryState.Active, gameJournalNotifyOption.Notify)
 function apartment:load(data)
     workspot.load(self, data)
 
     apartmentManager.addApartment(self)
 
     CName.add(self.purchasedFact)
+    CName.add(self.purchasedFact .. "_tutorial")
     CName.add(self.enablePurchaseFact)
     self:addKey()
     self:addIcon()
@@ -113,8 +124,91 @@ function apartment:getPatchData()
     return data
 end
 
-function apartment:onUpdate()
+function apartment:getJournalPatch()
+    return {
+        getID = function ()
+            return self.purchasedFact
+        end,
+        patches = {
+            ["contacts/muamar_el_capitan_reyes/apartments"] = {
+                getEntry = function ()
+                    local message = gameJournalPhoneMessage.new()
+                    message.id = self.purchasedFact
+                    message.text = ToLocalizationString(self.messageLocKey)
+                    message.imageId = self:getIconTDBID()
+                    return message
+                end
+            },
+            ["points_of_interest/apartments_buying"] = {
+                getEntry = function ()
+                    local pin = gameJournalPointOfInterestMappin.new()
 
+                    pin.id = self.purchasedFact
+                    pin.typedVariant = gamemappinsCommonVariant.new()
+                    pin.typedVariant.variant = gamedataMappinVariant.Zzz05_ApartmentToPurchaseVariant
+                    -- pin.staticNodeRef = CreateNodeRef("$/nif_origin/#nif_origin_origin")
+                    -- pin.dynamicEntityRef.reference = CreateNodeRef("$/nif_origin/#nif_origin_origin")
+                    pin.offset = ToVector3(self.apartmentPurchasePosition)
+
+                    return pin
+                end
+            }, --Game.GetJournalManager():ChangeEntryState('points_of_interest/safehouses/test', 'gameJournalPointOfInterestMappin', gameJournalEntryState.Active, gameJournalNotifyOption.Notify)
+            ["points_of_interest/safehouses"] = {
+                getEntry = function ()
+                    local pin = gameJournalPointOfInterestMappin.new()
+
+                    pin.id = self.purchasedFact
+                    pin.typedVariant = gamemappinsCommonVariant.new()
+                    pin.typedVariant.variant = gamedataMappinVariant.ApartmentVariant
+                    -- pin.staticNodeRef = CreateNodeRef("$/nif_origin/#nif_origin_origin")
+                    -- pin.dynamicEntityRef.reference = CreateNodeRef("$/nif_origin/#nif_origin_origin")
+                    pin.offset = ToVector3(self.apartmentPurchasedPosition)
+
+                    return pin
+                end
+            }
+        }
+    }
+end
+
+function apartment:sessionStart()
+    if not self:purchaseEnabled() then return end
+
+    -- local data = MappinData.new({ mappinType = "Mappins.FastTravelStaticMappin", variant = gamedataMappinVariant.Zzz05_ApartmentToPurchaseVariant})
+    -- self.purchaseMappinID = Game.GetMappinSystem():RegisterMappin(data, ToVector4(self.apartmentPurchasePosition))
+end
+
+function apartment:sessionEnd()
+    if self.purchaseMappinID then
+        Game.GetMappinSystem():UnregisterMappin(self.purchaseMappinID)
+        self.purchaseMappinID = nil
+    end
+end
+
+function apartment:sendMessage()
+    if self.purchasedFact == "" then return end
+
+    -- Game.GetJournalManager():ChangeEntryState('contacts/muamar_el_capitan_reyes/apartments/' .. self.purchasedFact, 'gameJournalPhoneMessage', gameJournalEntryState.Inactive, gameJournalNotifyOption.Notify)
+    -- Game.GetJournalManager():ChangeEntryState('contacts/muamar_el_capitan_reyes/apartments/' .. self.purchasedFact, 'gameJournalPhoneMessage', gameJournalEntryState.Active, gameJournalNotifyOption.Notify)
+end
+
+function apartment:onUpdate()
+    local purchaseEnabled = self:purchaseEnabled()
+
+    if not purchaseEnabled and self.purchaseMappinID then
+        Game.GetMappinSystem():UnregisterMappin(self.purchaseMappinID)
+        self.purchaseMappinID = nil
+    elseif purchaseEnabled and not self.purchaseMappinID then
+        self:sessionStart()
+        self:sendMessage()
+    end
+
+    if not self.tutorialEnabled or Game.GetQuestsSystem():GetFact(self.purchasedFact .. "_tutorial") == 1 or not purchaseEnabled then return end
+
+    if GetPlayer():GetWorldPosition():Distance(ToVector4(self.apartmentEntrancePosition)) < 1.5 then
+        Game.GetQuestsSystem():SetFact(self.purchasedFact .. "_tutorial", 1)
+        utils.showTutorial(self.tutorialLocKey, self.apartmentName, self.apartmentVideo)
+    end
 end
 
 function apartment:addKey()
@@ -174,6 +268,16 @@ function apartment:getIconTDBID()
     return self.purchasedFact ~= "" and "UIJournalIcons." .. self.purchasedFact or "UIJournalIcons.Q114_blueprint"
 end
 
+function apartment:purchaseEnabled()
+    local purchased = Game.GetQuestsSystem():GetFact(self.purchasedFact) == 1
+
+    if self.enablePurchaseFact ~= "" then
+        return Game.GetQuestsSystem():GetFact(self.enablePurchaseFact) == 1 and not purchased
+    end
+
+    return not purchased
+end
+
 function apartment:drawBase()
     style.sectionHeaderStart("BASE")
 
@@ -208,11 +312,13 @@ function apartment:drawBase()
         self:removeIcon()
         self:removeOffer()
         CName.add(text)
+        CName.add(text .. "_tutorial")
         self.purchasedFact = text
         self:addKey()
         self:addIcon()
         self:addOffer()
     end
+    reloadJournalOnEdit()
     style.tooltip("Must be set to something. This fact will be set to 1 when the apartment is purchased.")
 
     style.mutedText("Cost:")
@@ -315,10 +421,12 @@ function apartment:drawPositions()
     style.mutedText("Purchase Mappin Position:")
     ImGui.SameLine()
     ImGui.SetCursorPosX(self.maxMappinPropertyWidth)
-    local finished
     self.apartmentPurchasePosition, _, finished = self.mod.baseUI.interactionUI.drawPosition(self.apartmentPurchasePosition, "purchase")
     if finished then
         self.project:save()
+        if self.purchaseMappinID then
+            Game.GetMappinSystem():SetMappinPosition(self.purchaseMappinID, ToVector4(self.apartmentPurchasePosition))
+        end
     end
     ImGui.SameLine()
     style.mutedText(IconGlyphs.HelpCircleOutline)
@@ -327,7 +435,6 @@ function apartment:drawPositions()
     style.mutedText("Purchased Mappin Position:")
     ImGui.SameLine()
     ImGui.SetCursorPosX(self.maxMappinPropertyWidth)
-    local finished
     self.apartmentPurchasedPosition, _, finished = self.mod.baseUI.interactionUI.drawPosition(self.apartmentPurchasedPosition, "purchased")
     if finished then
         self.project:save()
@@ -358,6 +465,7 @@ function apartment:drawMedia()
             self:removeIcon()
         end
     end
+    reloadJournalOnEdit()
     style.tooltip("If enabled, the apartment picture will be set using a TweakDB record.\nIf disabled, the atlas and part will be used instead.")
 
     if not self.useIconRecord then
@@ -371,6 +479,7 @@ function apartment:drawMedia()
             self:removeIcon()
             self:addIcon()
         end
+        reloadJournalOnEdit()
         style.tooltip("Path to the atlas that contains the apartment picture.")
 
         style.mutedText("Atlas Part:")
@@ -383,6 +492,7 @@ function apartment:drawMedia()
             self:removeIcon()
             self:addIcon()
         end
+        reloadJournalOnEdit()
         style.tooltip("Name of the atlas part that contains the apartment picture.")
     else
         style.mutedText("Picture Record:")
@@ -391,6 +501,7 @@ function apartment:drawMedia()
         style.setNextItemWidth(250)
         self.apartmentPictureRecord, changed = ImGui.InputTextWithHint('##apartmentPictureRecord', 'UIJournalIcons.l_costview', self.apartmentPictureRecord, 250)
         if changed then self.project:save() end
+        reloadJournalOnEdit()
         style.tooltip("TweakDBID of the icon record that will be used for the apartment picture.")
     end
 
@@ -400,6 +511,7 @@ function apartment:drawMedia()
     style.setNextItemWidth(250)
     self.messageLocKey, changed = ImGui.InputTextWithHint('##messageLocKey', 'LocKey#99999', self.messageLocKey, 250)
     if changed then self.project:save() end
+    reloadJournalOnEdit()
     style.tooltip("Optional LocKey for a message that will be sent by El Capitan when the apartment can be purchased.")
 
     style.sectionHeaderEnd(true)
@@ -418,6 +530,11 @@ function apartment:drawTutorial()
     self.tutorialEnabled, changed = ImGui.Checkbox("##tutorialEnabled", self.tutorialEnabled)
     if changed then self.project:save() end
     style.tooltip("If enabled, a tutorial popup will be shown when the apartment is entered for the first time.\nThe popup will contain a video and a message.")
+    ImGui.SameLine()
+    if style.buttonNoBG(IconGlyphs.Reload) then
+        Game.GetQuestsSystem():SetFact(self.purchasedFact .. "_tutorial", 0)
+    end
+    style.tooltip("Reset, so that the tutorial will be shown again when the apartment is entered next time.")
 
     if self.tutorialEnabled then
         style.mutedText("Video Path:")

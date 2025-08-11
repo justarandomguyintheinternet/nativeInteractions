@@ -393,4 +393,36 @@ function miscUtils.getPrimaryKey(locKey)
     return LocKey(tonumber(key))
 end
 
+function miscUtils.getGameController(layer, name)
+    local layer = Game.GetInkSystem():GetLayer(layer)
+    if not layer then return end
+
+    for _, controller in ipairs(layer:GetGameControllers()) do
+        if controller:GetClassName().value == name then
+            return controller
+        end
+    end
+end
+
+function miscUtils.showTutorial(message, title, video)
+    local popupData = PopupData.new()
+    popupData.videoType = gameVideoType.Tutorial_1360x768
+    popupData.video = ResRef.FromString(video)
+    popupData.message = message
+    popupData.title = title
+
+    local settings = PopupSettings.new()
+    settings.closeAtInput = true
+    settings.pauseGame = true
+    settings.position = gamePopupPosition.LowerLeft
+    settings.fullscreen = true
+
+    local popupManager = miscUtils.getGameController("inkGameNotificationsLayer", "gameuiPopupsManager")
+    if not popupManager then return end
+
+    popupManager.tutorialData = popupData
+    popupManager.tutorialSettings = settings
+    popupManager:ShowTutorial()
+end
+
 return miscUtils

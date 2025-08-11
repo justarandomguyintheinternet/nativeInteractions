@@ -101,6 +101,7 @@ function interactionUI.drawPosition(position, key)
     if style.buttonNoBG(IconGlyphs.AccountArrowLeftOutline) then
         position = utils.fromVector(GetPlayer():GetWorldPosition())
         changed = true
+        finished = true
     end
     style.tooltip("Set to player position")
 

@@ -8,8 +8,8 @@ class NativeInteractions extends ScriptableService {
     private cb func OnLoad() {
         GameInstance.GetCallbackSystem().RegisterCallback(n"Resource/PostLoad", this, n"ProcessScene")
         .AddTarget(ResourceTarget.Type(n"scnSceneResource"));
-        GameInstance.GetCallbackSystem().RegisterCallback(n"Resource/PostLoad", this, n"ProcessJournal")
-        .AddTarget(ResourceTarget.Type(n"gameJournalResource"));
+        GameInstance.GetCallbackSystem().RegisterCallback(n"Resource/Load", this, n"ProcessJournal")
+        .AddTarget(ResourceTarget.Path(r"nif\\dummy.journal"));
     }
 
     public func IsCustomMappin(mappin: wref<IMappin>) -> Bool {

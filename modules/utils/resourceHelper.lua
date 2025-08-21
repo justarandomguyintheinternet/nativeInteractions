@@ -23,6 +23,7 @@ function helper.init()
         local scene = event:GetResource()
 
         helper.patchChoiceNodes(scene, path)
+        helper.patchTDBIDs(scene, path)
         helper.patchOffsets(scene, path)
         helper.patchNodeRefs(scene, path)
         helper.patchLocalization(scene, path)
@@ -85,6 +86,27 @@ function helper.patchChoiceNodes(scene, path)
 
         node.outputSockets = sockets
     end
+end
+
+function helper.patchTDBIDs(scene, path)
+    if not helper.patches[path].tdbidMap then return end
+
+    local graph = scene.sceneGraph.graph
+
+    for _, node in pairs(graph) do
+        if node:IsA("scnChoiceNode") then
+            for _, option in pairs(node.options) do
+                if option.bluelineCondition and option.bluelineCondition.type and option.bluelineCondition.type.scriptCondition then
+                    local condition = option.bluelineCondition.type.scriptCondition
+                    if condition:IsA("PaymentBalanced_ScriptConditionType") and helper.patches[path].tdbidMap[condition.questAssignment.value] then
+                        condition.questAssignment = helper.patches[path].tdbidMap[condition.questAssignment.value]
+                    end
+                end
+            end
+        end
+    end
+
+    scene.sceneGraph.graph = graph
 end
 
 function helper.patchOffsets(scene, path)

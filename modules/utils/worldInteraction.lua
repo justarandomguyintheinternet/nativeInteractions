@@ -34,15 +34,8 @@ end
 
 function world.disableInteraction(key, state)
     if not world.interactions[key] then return end
-    if world.interactions[key].disabled == state then return end
 
     world.interactions[key].disabled = state
-
-    if world.interactions[key].shown then
-        world.togglePin(world.interactions[key], false)
-    else
-        world.togglePin(world.interactions[key], true)
-    end
 end
 
 function world.init()
@@ -123,8 +116,10 @@ function world.update()
         end
 
         if not interaction.disabled and interaction.icon and Vector4.Distance(posPlayer, interaction.pos) < interaction.iconRange then -- Hide / show optional icon
-            world.togglePin(interaction, true)
-        elseif interaction.icon then
+            if not interaction.pinID then
+                world.togglePin(interaction, true)
+            end
+        elseif interaction.pinID and interaction.icon then
             world.togglePin(interaction, false)
         end
     end

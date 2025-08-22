@@ -12,7 +12,7 @@ function apartmentManager.init()
         if not data or not data.mappin then return end
 
         for _, apartment in pairs(apartmentManager.apartments) do
-            if data.mappin:GetWorldPosition():Distance(ToVector4(apartment.apartmentPurchasePosition)) < 0.05 then
+            if data.mappin:GetVariant() == gamedataMappinVariant.Zzz05_ApartmentToPurchaseVariant and data.mappin:GetWorldPosition():Distance(ToVector4(apartment.apartmentPurchasePosition)) < 0.05 then
                 InkImageUtils.RequestSetImage(this, this.linkImage, apartment:getIconTDBID(), "OnIconCallback")
                 inkTextRef.SetText(this.titleText, GetLocalizedText(apartment.apartmentName))
                 local textParams = inkTextParams.new()

@@ -96,6 +96,8 @@ function yakitori:onUpdate()
         self.eatLevel = Game.GetQuestsSystem():GetFact("nif_eat_level")
     end
 
+    if self.eatLevel == 0 then return end
+
     -- Reset stick if far away
     local distance = GetPlayer():GetWorldPosition():Distance(ToVector4(self.worldIconPosition))
     if distance > self.resetDistance and distance < self.resetDistance + 5 then

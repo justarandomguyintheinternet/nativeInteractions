@@ -117,6 +117,8 @@ function bar:onUpdate()
         Game.GetQuestsSystem():SetFact("nif_enable_smoke", self.enableSmoke and 1 or 0)
     end
 
+    if self.drinkLevel == 0 then return end
+
     -- Reset glass if far away
     local distance = GetPlayer():GetWorldPosition():Distance(ToVector4(self.worldIconPosition))
     if distance > self.resetDistance and distance < self.resetDistance + 5 then

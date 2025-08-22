@@ -1,3 +1,5 @@
+local utils = require("modules/utils/utils")
+
 local world = {
     interactions = {}
 }
@@ -81,11 +83,13 @@ function world.update()
     local playerForward = GetPlayer():GetWorldForward()
     posPlayer.z = posPlayer.z + 1
 
-    for key, interaction in pairs(world.interactions) do
+    for _, interaction in pairs(world.interactions) do
         local update = interaction.shown
-        local interactionAngle = 180 - Vector4.GetAngleBetween(playerForward, Vector4.new(posPlayer.x - interaction.pos.x, posPlayer.y - interaction.pos.y, posPlayer.z - interaction.pos.z, 0))
+        local interactionAngle = 360
 
-        if Vector4.Distance(posPlayer, interaction.pos) < interaction.interactionRange then -- Custom callback when in range and look at
+        if utils.vectorDistance(posPlayer, interaction.pos) < interaction.interactionRange then -- Custom callback when in range and look at
+            interactionAngle = 180 - Vector4.GetAngleBetween(playerForward, Vector4.new(posPlayer.x - interaction.pos.x, posPlayer.y - interaction.pos.y, posPlayer.z - interaction.pos.z, 0))
+
             if interactionAngle < interaction.angle then
                 update = true and not interaction.disabled
             else
@@ -110,12 +114,12 @@ function world.update()
                 interaction.shown = false
                 interaction.callback(false)
             end
-        else
+        elseif interaction.shown then
             interaction.shown = update
             interaction.callback(interaction.shown)
         end
 
-        if not interaction.disabled and interaction.icon and Vector4.Distance(posPlayer, interaction.pos) < interaction.iconRange then -- Hide / show optional icon
+        if not interaction.disabled and interaction.icon and utils.vectorDistance(posPlayer, interaction.pos) < interaction.iconRange then -- Hide / show optional icon
             if not interaction.pinID then
                 world.togglePin(interaction, true)
             end

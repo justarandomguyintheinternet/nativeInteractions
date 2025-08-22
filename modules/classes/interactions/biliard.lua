@@ -158,6 +158,8 @@ function biliard:onUpdate()
         self:updateProp(self.ballRef, self.ballEndPosition, self.ballEndOrientation)
     end
 
+    if not self.used then return end
+
     -- Reset scene if far away
     local distance = GetPlayer():GetWorldPosition():Distance(ToVector4(self.worldIconPosition))
     if distance > self.resetDistance and distance < self.resetDistance + 5 then

@@ -58,8 +58,8 @@ end
 
 function couch:onUpdate()
     if self.sceneRunning then
-        Game.GetQuestsSystem():SetFact("nif_tv_controls", self.enableTVControls and 1 or 0)
-        Game.GetQuestsSystem():SetFact("nif_sit_type", self.sitType)
+        Game.GetQuestsSystem():SetFactStr("nif_tv_controls", self.enableTVControls and 1 or 0)
+        Game.GetQuestsSystem():SetFactStr("nif_sit_type", self.sitType)
     end
 end
 

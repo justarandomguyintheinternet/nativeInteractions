@@ -89,7 +89,7 @@ function editUI.draw(mod)
     for key, entry in pairs(editUI.project.interactions) do
         ImGui.PushID(key)
 
-        local sceneActive = Game.GetQuestsSystem():GetFact("nif_scene_active") == 1
+        local sceneActive = Game.GetQuestsSystem():GetFactStr("nif_scene_active") == 1
         local state = (sceneActive and entry.sceneRunning) and "In Scene" or (entry.sceneRunning and "Choice Active" or "Not Running")
         local color = (sceneActive and entry.sceneRunning) and 0xFF00FF00 or (entry.sceneRunning and 0x8000FFFF or 0x80FFFFFF)
 

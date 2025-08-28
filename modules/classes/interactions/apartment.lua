@@ -163,10 +163,10 @@ function apartment:sessionStart()
     -- Remove any mappins
     self:sessionEnd()
 
-    Game.GetQuestsSystem():SetFact("nif_apartment_type", self.isTablet and 0 or 1)
+    Game.GetQuestsSystem():SetFactStr("nif_apartment_type", self.isTablet and 0 or 1)
 
     -- Add purchased mappin and disable interaction if already purchased
-    if Game.GetQuestsSystem():GetFact(self.purchasedFact) == 1 then
+    if Game.GetQuestsSystem():GetFactStr(self.purchasedFact) == 1 then
         local data = MappinData.new({ mappinType = "Mappins.FastTravelStaticMappin", variant = gamedataMappinVariant.ApartmentVariant})
         self.apartmentMappinID = Game.GetMappinSystem():RegisterMappin(data, ToVector4(self.apartmentPurchasedPosition))
 
@@ -187,8 +187,8 @@ function apartment:sessionStart()
 end
 
 function apartment:reset()
-    Game.GetQuestsSystem():SetFact(self.purchasedFact, 0)
-    Game.GetQuestsSystem():SetFact(self.purchasedFact .. "_tutorial", 0)
+    Game.GetQuestsSystem():SetFactStr(self.purchasedFact, 0)
+    Game.GetQuestsSystem():SetFactStr(self.purchasedFact .. "_tutorial", 0)
 
     local data = Game.GetTransactionSystem():GetItemData(GetPlayer(), ItemID.FromTDBID(self:getKeyTDBID()))
     if data then
@@ -222,9 +222,9 @@ end
 function apartment:onSceneEnd()
     workspot.onSceneEnd(self)
 
-    if Game.GetQuestsSystem():GetFact("nif_purchased_signal") == 1 then
-        Game.GetQuestsSystem():SetFact("nif_purchased_signal", 0)
-        Game.GetQuestsSystem():SetFact(self.purchasedFact, 1)
+    if Game.GetQuestsSystem():GetFactStr("nif_purchased_signal") == 1 then
+        Game.GetQuestsSystem():SetFactStr("nif_purchased_signal", 0)
+        Game.GetQuestsSystem():SetFactStr(self.purchasedFact, 1)
 
         if self.purchaseMappinID then
             Game.GetMappinSystem():UnregisterMappin(self.purchaseMappinID)
@@ -274,10 +274,10 @@ function apartment:onUpdate()
     end
 
     -- Show tutorial
-    if not self.tutorialEnabled or Game.GetQuestsSystem():GetFact(self.purchasedFact .. "_tutorial") == 1 or Game.GetQuestsSystem():GetFact(self.purchasedFact) == 0 then return end
+    if not self.tutorialEnabled or Game.GetQuestsSystem():GetFactStr(self.purchasedFact .. "_tutorial") == 1 or Game.GetQuestsSystem():GetFactStr(self.purchasedFact) == 0 then return end
 
     if GetPlayer():GetWorldPosition():Distance(ToVector4(self.apartmentEntrancePosition)) < 1.2 then
-        Game.GetQuestsSystem():SetFact(self.purchasedFact .. "_tutorial", 1)
+        Game.GetQuestsSystem():SetFactStr(self.purchasedFact .. "_tutorial", 1)
         utils.showTutorial(self.tutorialLocKey, self.apartmentName, self.apartmentVideo)
     end
 end
@@ -340,10 +340,10 @@ function apartment:getIconTDBID()
 end
 
 function apartment:purchaseEnabled()
-    local purchased = Game.GetQuestsSystem():GetFact(self.purchasedFact) == 1
+    local purchased = Game.GetQuestsSystem():GetFactStr(self.purchasedFact) == 1
 
     if self.enablePurchaseFact ~= "" then
-        return Game.GetQuestsSystem():GetFact(self.enablePurchaseFact) == 1 and not purchased
+        return Game.GetQuestsSystem():GetFactStr(self.enablePurchaseFact) == 1 and not purchased
     end
 
     return not purchased
@@ -469,7 +469,7 @@ function apartment:drawPurchaseTerminal()
             self:editEnd()
         end
 
-        Game.GetQuestsSystem():SetFact("nif_apartment_type", self.isTablet and 0 or 1)
+        Game.GetQuestsSystem():SetFactStr("nif_apartment_type", self.isTablet and 0 or 1)
     end
     style.tooltip("Type of the purchase terminal that will be used for this apartment.\nTablet Hand Scanner includes a workspot / animation, while Door Terminal is a simple interaction.")
 
@@ -631,7 +631,7 @@ function apartment:drawTutorial()
     ImGui.SameLine()
     ImGui.PushID("tutorialReset")
     if style.buttonNoBG(IconGlyphs.Reload) then
-        Game.GetQuestsSystem():SetFact(self.purchasedFact .. "_tutorial", 0)
+        Game.GetQuestsSystem():SetFactStr(self.purchasedFact .. "_tutorial", 0)
     end
     ImGui.PopID()
     style.tooltip("Reset, so that the tutorial will be shown again when the apartment is entered next time.")

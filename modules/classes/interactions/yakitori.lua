@@ -61,7 +61,7 @@ end
 
 function yakitori:start()
     if not self.sceneRunning then
-        Game.GetQuestsSystem():SetFact("nif_eat_level", self.eatLevel)
+        Game.GetQuestsSystem():SetFactStr("nif_eat_level", self.eatLevel)
     end
 
     workspot.start(self)
@@ -69,7 +69,7 @@ end
 
 function yakitori:stop()
     if self.sceneRunning then
-        self.eatLevel = Game.GetQuestsSystem():GetFact("nif_eat_level")
+        self.eatLevel = Game.GetQuestsSystem():GetFactStr("nif_eat_level")
     end
 
     workspot.stop(self)
@@ -78,7 +78,7 @@ end
 function yakitori:reset()
     self.eatLevel = 0
     if self.sceneRunning then
-        Game.GetQuestsSystem():SetFact("nif_eat_level", self.eatLevel)
+        Game.GetQuestsSystem():SetFactStr("nif_eat_level", self.eatLevel)
     end
 
     local stick = utils.getEntityByRef(self.stickRef)
@@ -93,7 +93,7 @@ end
 
 function yakitori:onUpdate()
     if self.sceneRunning then
-        self.eatLevel = Game.GetQuestsSystem():GetFact("nif_eat_level")
+        self.eatLevel = Game.GetQuestsSystem():GetFactStr("nif_eat_level")
     end
 
     if self.eatLevel == 0 then return end

@@ -134,7 +134,7 @@ function biliard:updateProp(ref, position, rotation)
 end
 
 function biliard:onUpdate()
-    if self.sceneRunning and Game.GetQuestsSystem():GetFact("nif_scene_active") == 1 then
+    if self.sceneRunning and Game.GetQuestsSystem():GetFactStr("nif_scene_active") == 1 then
         self.used = true
         world.disableInteraction(self.worldInteractionID, true)
 

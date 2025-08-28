@@ -50,7 +50,7 @@ function mod:new()
         CName.add("nif_scene_active")
         CName.add("nif_iguana_idle")
         CName.add("nif")
-        Game.GetQuestsSystem():SetFact("nif_iguana_idle", 0)
+        Game.GetQuestsSystem():SetFactStr("nif_iguana_idle", 0)
 
         Observe('RadialWheelController', 'OnIsInMenuChanged', function(_, isInMenu)
             self.runtimeData.inMenu = isInMenu
@@ -58,8 +58,8 @@ function mod:new()
 
         self.GameUI.OnSessionStart(function()
             self.runtimeData.inGame = true
-            Game.GetQuestsSystem():SetFact("nif_iguana_idle", 0)
-            Game.GetQuestsSystem():SetFact("nif_scene_active", 0)
+            Game.GetQuestsSystem():SetFactStr("nif_iguana_idle", 0)
+            Game.GetQuestsSystem():SetFactStr("nif_scene_active", 0)
             manager.sessionStart()
             world.onSessionStart()
             resourceHelper.endEvents = {}

@@ -41,7 +41,7 @@ end
 
 function lean:onUpdate()
     if self.sceneRunning then
-        Game.GetQuestsSystem():SetFact("nif_lean_enable_smoke", self.enableSmoke and 1 or 0)
+        Game.GetQuestsSystem():SetFactStr("nif_lean_enable_smoke", self.enableSmoke and 1 or 0)
     end
 end
 

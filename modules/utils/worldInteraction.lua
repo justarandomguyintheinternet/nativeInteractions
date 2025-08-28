@@ -75,7 +75,7 @@ function world.init()
 end
 
 function world.update()
-    if Game.GetQuestsSystem():GetFact("nif_scene_active") == 1 then return end -- Dont update if a scene is running
+    if Game.GetQuestsSystem():GetFactStr("nif_scene_active") == 1 then return end -- Dont update if a scene is running
 
     local showInteractions = {} -- Aggregate all callbacks, make sure only one interaction per modulePath is active
 

@@ -81,9 +81,9 @@ end
 
 function bar:start()
     if not self.sceneRunning then
-        Game.GetQuestsSystem():SetFact("nif_drink_level", self.drinkLevel)
-        Game.GetQuestsSystem():SetFact("nif_enable_smoke", self.enableSmoke and 1 or 0)
-        Game.GetQuestsSystem():SetFact("nif_drink_alcoholic", self.isDrinkAlcohol and 1 or 0)
+        Game.GetQuestsSystem():SetFactStr("nif_drink_level", self.drinkLevel)
+        Game.GetQuestsSystem():SetFactStr("nif_enable_smoke", self.enableSmoke and 1 or 0)
+        Game.GetQuestsSystem():SetFactStr("nif_drink_alcoholic", self.isDrinkAlcohol and 1 or 0)
     end
 
     workspot.start(self)
@@ -91,7 +91,7 @@ end
 
 function bar:stop()
     if self.sceneRunning then
-        self.drinkLevel = Game.GetQuestsSystem():GetFact("nif_drink_level")
+        self.drinkLevel = Game.GetQuestsSystem():GetFactStr("nif_drink_level")
     end
 
     workspot.stop(self)
@@ -100,7 +100,7 @@ end
 function bar:reset()
     self.drinkLevel = 0
     if self.sceneRunning then
-        Game.GetQuestsSystem():SetFact("nif_drink_level", self.drinkLevel)
+        Game.GetQuestsSystem():SetFactStr("nif_drink_level", self.drinkLevel)
     end
 
     local glass = utils.getEntityByRef(self.glassRef)
@@ -112,9 +112,9 @@ end
 
 function bar:onUpdate()
     if self.sceneRunning then
-        self.drinkLevel = Game.GetQuestsSystem():GetFact("nif_drink_level")
-        Game.GetQuestsSystem():SetFact("nif_enable_drink", (self.drinkLevel <= 2 and self.enableDrink) and 1 or 0)
-        Game.GetQuestsSystem():SetFact("nif_enable_smoke", self.enableSmoke and 1 or 0)
+        self.drinkLevel = Game.GetQuestsSystem():GetFactStr("nif_drink_level")
+        Game.GetQuestsSystem():SetFactStr("nif_enable_drink", (self.drinkLevel <= 2 and self.enableDrink) and 1 or 0)
+        Game.GetQuestsSystem():SetFactStr("nif_enable_smoke", self.enableSmoke and 1 or 0)
     end
 
     if self.drinkLevel == 0 then return end

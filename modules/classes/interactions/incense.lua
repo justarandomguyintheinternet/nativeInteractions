@@ -96,12 +96,12 @@ function incense:reset()
 
     Game.GetResourceDepot():RemoveResourceFromCache("nif\\quest\\incense_stop.scene")
     resourceHelper.registerPatch("nif\\quest\\incense_stop.scene", self:getPatchData())
-    Game.GetQuestsSystem():SetFact("nif_interaction_id", 9)
-    Game.GetQuestsSystem():SetFact("nif_start_signal", 1)
+    Game.GetQuestsSystem():SetFactStr("nif_interaction_id", 9)
+    Game.GetQuestsSystem():SetFactStr("nif_start_signal", 1)
 end
 
 function incense:onUpdate()
-    if self.sceneRunning and Game.GetQuestsSystem():GetFact("nif_scene_active") == 1 then
+    if self.sceneRunning and Game.GetQuestsSystem():GetFactStr("nif_scene_active") == 1 then
         self.used = true
         world.disableInteraction(self.worldInteractionID, true)
     end

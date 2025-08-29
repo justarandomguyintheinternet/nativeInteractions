@@ -20,7 +20,8 @@ local interactions = {
     { name = "", class = require("modules/classes/interactions/iguana") },
     { name = "", class = require("modules/classes/interactions/yakitori") },
     { name = "", class = require("modules/classes/interactions/basketball") },
-    { name = "", class = require("modules/classes/interactions/apartment") }
+    { name = "", class = require("modules/classes/interactions/apartment") },
+    { name = "", class = require("modules/classes/interactions/appearance") }
 }
 
 ---@class editUI

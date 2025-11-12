@@ -18,6 +18,9 @@ class NativeInteractions extends ScriptableService {
 
     private cb func ProcessScene(event: ref<ResourceEvent>) {};
     private cb func ProcessJournal(event: ref<ResourceEvent>) {};
+
+    public func ToggleProject(projectName: String, state: Bool) -> Void {};
+    public func ToggleAll(state: Bool) -> Void {};
 }
 
 @wrapMethod(WorldMappinsContainerController)

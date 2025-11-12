@@ -34,7 +34,8 @@ local mod = {
     },
 
     baseUI = require("modules/ui/baseUI"),
-    GameUI = require("modules/utils/GameUI")
+    GameUI = require("modules/utils/GameUI"),
+    api = require("modules/api")
 }
 
 function mod:new()

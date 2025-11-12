@@ -1,5 +1,6 @@
 local config = require("modules/utils/config")
 local utils = require("modules/utils/utils")
+local world = require("modules/utils/worldInteraction")
 
 ---Class for keeping project data
 ---@class project
@@ -77,11 +78,30 @@ function project:onUpdate()
     end
 end
 
+function project:enable()
+    if self.enabled then return end
+
+    self.enabled = true
+
+    for _, interaction in pairs(self.interactions) do
+        world.disableInteraction(interaction.worldInteractionID, false)
+    end
+end
+
+function project:disable()
+    if not self.enabled then return end
+
+    self.enabled = false
+
+    for _, interaction in pairs(self.interactions) do
+        world.disableInteraction(interaction.worldInteractionID, true)
+    end
+end
+
 function project:save()
     local data = {}
 
     data.name = self.name
-    data.enabled = self.enabled
     data.interactions = {}
     for _, interaction in pairs(self.interactions) do
         table.insert(data.interactions, interaction:save())

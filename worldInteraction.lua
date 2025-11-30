@@ -1,12 +1,11 @@
 local utils = require("modules/utils/utils")
 
 -- OPTIMIZATION: Reverse Lookup Table
--- Allows us to find an interaction by its Pin ID instantly, without looping.
 local pinLookup = {} 
 
 -- OPTIMIZATION: Grid System Variables
 local searchGrid = nil
-local gridSize = 80.0 -- 80m chunks
+local gridSize = 80.0 
 
 local world = {
     interactions = {}
@@ -29,10 +28,7 @@ function world.addInteraction(modulePath, position, interactionRange, angle, ico
     }
 
     table.insert(world.interactions, data)
-    
-    -- Invalidate the grid so it rebuilds on the next update
     searchGrid = nil 
-    
     return #world.interactions
 end
 
@@ -41,12 +37,14 @@ function world.removeInteraction(key)
         local pinID = world.interactions[key].pinID
         if pinID then
             Game.GetMappinSystem():UnregisterMappin(pinID)
-            -- Remove from lookup
-            pinLookup[pinID.hash] = nil 
+            -- Remove from lookup safely
+            if pinID.hash then
+                pinLookup[pinID.hash] = nil 
+            end
         end
 
         world.interactions[key] = nil
-        searchGrid = nil -- Invalidate grid
+        searchGrid = nil
     end
 end
 
@@ -59,27 +57,32 @@ function world.init()
     TweakDB:CloneRecord("WorldMappinUIProfile.nif", "WorldMappinUIProfile.Default")
     TweakDB:SetFlat("WorldMappinUIProfile.nif.visibleInTier", { true, true, true, false, false })
 
-    -- CRITICAL OPTIMIZATION: Removed the loop (O(n)) and replaced with Hash Lookup (O(1))
+    -- CRITICAL FIX: Added Safety Checks for GetID
     ObserveAfter("BaseMappinBaseController", "UpdateRootState", function(this)
         local mappin = this:GetMappin()
         if not mappin then return end
 
-        -- INSTANT CHECK: Is this mappin one of ours?
-        -- We check the ID hash directly. Zero math, zero looping.
-        local interaction = pinLookup[mappin:GetID().hash]
-        
-        if interaction then
-            local record = TweakDBInterface.GetUIIconRecord(interaction.icon)
-            this.iconWidget:SetAtlasResource(record:AtlasResourcePath())
-            this.iconWidget:SetTexturePart(record:AtlasPartName())
-            this.iconWidget:SetTintColor(interaction.iconColor or HDRColor.new({ Red = 0.15829999744892, Green = 1.3033000230789, Blue = 1.4141999483109, Alpha = 1.0 }))
+        -- SAFETY CHECK: Does this mappin actually have an ID function?
+        -- Some UI elements (like grenades/pings) do not.
+        if mappin.GetID then
+            local id = mappin:GetID()
+            
+            -- Look up the hash directly
+            if id and pinLookup[id.hash] then
+                local interaction = pinLookup[id.hash]
+                local record = TweakDBInterface.GetUIIconRecord(interaction.icon)
+                this.iconWidget:SetAtlasResource(record:AtlasResourcePath())
+                this.iconWidget:SetTexturePart(record:AtlasPartName())
+                this.iconWidget:SetTintColor(interaction.iconColor or HDRColor.new({ Red = 0.15829999744892, Green = 1.3033000230789, Blue = 1.4141999483109, Alpha = 1.0 }))
+            end
         end
     end)
 
     Override("NativeInteractions", "IsCustomMappin", function (_, mappin)
-        if mappin then
+        if mappin and mappin.GetID then
+            local id = mappin:GetID()
             -- INSTANT CHECK
-            if pinLookup[mappin:GetID().hash] then
+            if id and pinLookup[id.hash] then
                 return true
             end
         end
@@ -102,10 +105,7 @@ function world.update()
     local Vector4_GetAngleBetween = Vector4.GetAngleBetween
     local Vector4_new = Vector4.new
 
-    -- ==========================================
-    -- PHASE A: ONE-TIME GRID BUILDING
-    -- We sort all items into buckets once.
-    -- ==========================================
+    -- GRID BUILDING
     if not searchGrid then
         searchGrid = {}
         for _, interaction in pairs(world.interactions) do
@@ -120,14 +120,10 @@ function world.update()
         end
     end
 
-    -- ==========================================
-    -- PHASE B: SELECTIVE SCANNING
-    -- We find the player's bucket and only check neighbors.
-    -- ==========================================
+    -- SELECTIVE SCANNING
     local px = math.floor(posPlayer.x / gridSize)
     local py = math.floor(posPlayer.y / gridSize)
 
-    -- Scan 3x3 Grid Area
     for x = px - 1, px + 1 do
         for y = py - 1, py + 1 do
             local bucketKey = x .. "_" .. y
@@ -197,14 +193,12 @@ end
 function world.forceIcons()
     for _, interaction in pairs(world.interactions) do
         if interaction.pinID then
-            -- Clean up old ID from lookup
             pinLookup[interaction.pinID.hash] = nil
             Game.GetMappinSystem():UnregisterMappin(interaction.pinID)
             
             local data = MappinData.new({ mappinType = 'Mappins.DefaultStaticMappin', variant = gamedataMappinVariant.UseVariant, visibleThroughWalls = false })
             interaction.pinID = Game.GetMappinSystem():RegisterMappin(data, interaction.pos)
             
-            -- Add new ID to lookup
             pinLookup[interaction.pinID.hash] = interaction
         end
     end
@@ -214,7 +208,6 @@ function world.togglePin(interaction, state)
     if not interaction.icon or interaction.hideIcon then return end
 
     if not state and interaction.pinID then
-        -- Clean up lookup
         pinLookup[interaction.pinID.hash] = nil
         
         Game.GetMappinSystem():UnregisterMappin(interaction.pinID)
@@ -223,7 +216,6 @@ function world.togglePin(interaction, state)
         local data = MappinData.new({ mappinType = 'Mappins.DefaultStaticMappin', variant = gamedataMappinVariant.UseVariant, visibleThroughWalls = false })
         interaction.pinID = Game.GetMappinSystem():RegisterMappin(data, interaction.pos)
         
-        -- Add to lookup
         pinLookup[interaction.pinID.hash] = interaction
     end
 end
@@ -234,7 +226,6 @@ function world.updateInteractionPosition(id, position)
         if world.interactions[id].pinID then
             Game.GetMappinSystem():SetMappinPosition(world.interactions[id].pinID, position)
         end
-        -- Invalidate grid if things move
         searchGrid = nil
     end
 end
@@ -244,7 +235,6 @@ function world.onSessionStart()
         interaction.shown = false
         interaction.pinID = nil
     end
-    -- Clear lookups
     pinLookup = {}
     searchGrid = nil
 end

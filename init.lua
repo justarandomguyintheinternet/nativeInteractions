@@ -21,6 +21,8 @@ local manager = require("modules/projectsManager")
 local world = require("modules/utils/worldInteraction")
 local removals = require("modules/removalManager")
 local apartmentManager = require("modules/apartmentManager")
+local updateTimer = 0.0
+local updateInterval = 0.30
 
 ---@class mod
 ---@field runtimeData {cetOpen: boolean, inGame: boolean, inMenu: boolean}
@@ -34,8 +36,7 @@ local mod = {
     },
 
     baseUI = require("modules/ui/baseUI"),
-    GameUI = require("modules/utils/GameUI"),
-    api = require("modules/api")
+    GameUI = require("modules/utils/GameUI")
 }
 
 function mod:new()
@@ -52,7 +53,6 @@ function mod:new()
         CName.add("nif_iguana_idle")
         CName.add("nif")
         Game.GetQuestsSystem():SetFactStr("nif_iguana_idle", 0)
-        self.api.init()
 
         Observe('RadialWheelController', 'OnIsInMenuChanged', function(_, isInMenu)
             self.runtimeData.inMenu = isInMenu
@@ -93,12 +93,23 @@ function mod:new()
     end)
 
     registerForEvent("onUpdate", function (dt)
-        if self.runtimeData.inGame and not self.runtimeData.inMenu then
-            Cron.Update(dt)
-            manager.update()
-            world.update()
-        end
-    end)
+		if self.runtimeData.inGame and not self.runtimeData.inMenu then
+        -- Keep Cron running every frame for smooth animations/timers
+			Cron.Update(dt)
+
+        -- Add the time passed since the last frame
+			updateTimer = updateTimer + dt
+
+        -- Only run the heavy logic if 0.10 seconds have passed
+			if updateTimer >= updateInterval then
+				manager.update()
+				world.update()
+            
+        -- Reset the timer, subtracting the interval to keep it accurate
+				updateTimer = updateTimer - updateInterval
+			end
+		end
+	end)
 
     registerForEvent("onDraw", function()
         style.initialize(true)

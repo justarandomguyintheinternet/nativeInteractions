@@ -37,7 +37,7 @@ function world.removeInteraction(key)
         local pinID = world.interactions[key].pinID
         if pinID then
             Game.GetMappinSystem():UnregisterMappin(pinID)
-            -- Remove from lookup safely
+            -- Safety Check already existed here, but good to double check
             if pinID.hash then
                 pinLookup[pinID.hash] = nil 
             end
@@ -57,18 +57,17 @@ function world.init()
     TweakDB:CloneRecord("WorldMappinUIProfile.nif", "WorldMappinUIProfile.Default")
     TweakDB:SetFlat("WorldMappinUIProfile.nif.visibleInTier", { true, true, true, false, false })
 
-    -- CRITICAL FIX: Added Safety Checks for GetID
+    -- CRITICAL OPTIMIZATION: Reverse Lookup Table (Fixed for Safety)
     ObserveAfter("BaseMappinBaseController", "UpdateRootState", function(this)
         local mappin = this:GetMappin()
         if not mappin then return end
 
-        -- SAFETY CHECK: Does this mappin actually have an ID function?
-        -- Some UI elements (like grenades/pings) do not.
+        -- SAFETY CHECK: Ensure GetID exists
         if mappin.GetID then
             local id = mappin:GetID()
             
-            -- Look up the hash directly
-            if id and pinLookup[id.hash] then
+            -- SAFETY CHECK: Ensure ID has a hash and exists in our lookup
+            if id and id.hash and pinLookup[id.hash] then
                 local interaction = pinLookup[id.hash]
                 local record = TweakDBInterface.GetUIIconRecord(interaction.icon)
                 this.iconWidget:SetAtlasResource(record:AtlasResourcePath())
@@ -81,8 +80,8 @@ function world.init()
     Override("NativeInteractions", "IsCustomMappin", function (_, mappin)
         if mappin and mappin.GetID then
             local id = mappin:GetID()
-            -- INSTANT CHECK
-            if id and pinLookup[id.hash] then
+            -- SAFETY CHECK: Ensure hash is valid
+            if id and id.hash and pinLookup[id.hash] then
                 return true
             end
         end
@@ -193,13 +192,20 @@ end
 function world.forceIcons()
     for _, interaction in pairs(world.interactions) do
         if interaction.pinID then
-            pinLookup[interaction.pinID.hash] = nil
+            -- FIX: Check hash before nil-ing
+            if interaction.pinID.hash then
+                pinLookup[interaction.pinID.hash] = nil
+            end
+            
             Game.GetMappinSystem():UnregisterMappin(interaction.pinID)
             
             local data = MappinData.new({ mappinType = 'Mappins.DefaultStaticMappin', variant = gamedataMappinVariant.UseVariant, visibleThroughWalls = false })
             interaction.pinID = Game.GetMappinSystem():RegisterMappin(data, interaction.pos)
             
-            pinLookup[interaction.pinID.hash] = interaction
+            -- FIX: Check hash before setting
+            if interaction.pinID and interaction.pinID.hash then
+                pinLookup[interaction.pinID.hash] = interaction
+            end
         end
     end
 end
@@ -208,7 +214,10 @@ function world.togglePin(interaction, state)
     if not interaction.icon or interaction.hideIcon then return end
 
     if not state and interaction.pinID then
-        pinLookup[interaction.pinID.hash] = nil
+        -- FIX: Check hash before nil-ing
+        if interaction.pinID.hash then
+            pinLookup[interaction.pinID.hash] = nil
+        end
         
         Game.GetMappinSystem():UnregisterMappin(interaction.pinID)
         interaction.pinID = nil
@@ -216,7 +225,10 @@ function world.togglePin(interaction, state)
         local data = MappinData.new({ mappinType = 'Mappins.DefaultStaticMappin', variant = gamedataMappinVariant.UseVariant, visibleThroughWalls = false })
         interaction.pinID = Game.GetMappinSystem():RegisterMappin(data, interaction.pos)
         
-        pinLookup[interaction.pinID.hash] = interaction
+        -- FIX: Check hash before setting. This was likely the crash cause.
+        if interaction.pinID and interaction.pinID.hash then
+            pinLookup[interaction.pinID.hash] = interaction
+        end
     end
 end
 

@@ -1,15 +1,32 @@
 local utils = require("modules/utils/utils")
 
--- OPTIMIZATION: Reverse Lookup Table
-local pinLookup = {} 
-
--- OPTIMIZATION: Grid System Variables
+-- OPTIMIZATION 1: Grid System (For Logic)
 local searchGrid = nil
 local gridSize = 80.0 
+
+-- OPTIMIZATION 2: UI Cache (For Visuals)
+-- Stores the result of our check so we only do math ONCE per icon.
+-- "__mode = 'k'" means it automatically cleans up memory when icons despawn.
+local activeControllers = setmetatable({}, { __mode = "k" })
 
 local world = {
     interactions = {}
 }
+
+-- HELPER: Rebuilds the optimization grid
+function world.rebuildGrid()
+    searchGrid = {}
+    for _, interaction in pairs(world.interactions) do
+         if interaction.pos then
+             local gx = math.floor(interaction.pos.x / gridSize)
+             local gy = math.floor(interaction.pos.y / gridSize)
+             local key = gx .. "_" .. gy
+             
+             if not searchGrid[key] then searchGrid[key] = {} end
+             table.insert(searchGrid[key], interaction)
+         end
+    end
+end
 
 function world.addInteraction(modulePath, position, interactionRange, angle, icon, iconRange, iconColor, callback)
     local data = {
@@ -37,10 +54,6 @@ function world.removeInteraction(key)
         local pinID = world.interactions[key].pinID
         if pinID then
             Game.GetMappinSystem():UnregisterMappin(pinID)
-            -- Safety Check already existed here, but good to double check
-            if pinID.hash then
-                pinLookup[pinID.hash] = nil 
-            end
         end
 
         world.interactions[key] = nil
@@ -57,32 +70,99 @@ function world.init()
     TweakDB:CloneRecord("WorldMappinUIProfile.nif", "WorldMappinUIProfile.Default")
     TweakDB:SetFlat("WorldMappinUIProfile.nif.visibleInTier", { true, true, true, false, false })
 
-    -- CRITICAL OPTIMIZATION: Reverse Lookup Table (Fixed for Safety)
+    -- THE ULTIMATE FIX: Cached Identification
     ObserveAfter("BaseMappinBaseController", "UpdateRootState", function(this)
+        
+        -- 1. FAST LANE: Check if we have already seen this icon
+        local cached = activeControllers[this]
+        if cached then
+            if cached == "ignore" then 
+                return -- It's an enemy/grenade we already checked. STOP.
+            else
+                -- It is one of our chairs! Apply style instantly.
+                local record = TweakDBInterface.GetUIIconRecord(cached.icon)
+                this.iconWidget:SetAtlasResource(record:AtlasResourcePath())
+                this.iconWidget:SetTexturePart(record:AtlasPartName())
+                this.iconWidget:SetTintColor(cached.iconColor or HDRColor.new({ Red = 0.15829999744892, Green = 1.3033000230789, Blue = 1.4141999483109, Alpha = 1.0 }))
+                return
+            end
+        end
+
+        -- 2. SLOW LANE: First time seeing this icon. Do the math ONCE.
         local mappin = this:GetMappin()
         if not mappin then return end
 
-        -- SAFETY CHECK: Ensure GetID exists
-        if mappin.GetID then
-            local id = mappin:GetID()
+        local pos = mappin:GetWorldPosition()
+        local foundInteraction = nil
+        
+        -- Ensure grid exists
+        if not searchGrid then world.rebuildGrid() end
+        
+        -- Grid Optimization check
+        if searchGrid and pos then
+             local gx = math.floor(pos.x / gridSize)
+             local gy = math.floor(pos.y / gridSize)
+             local key = gx .. "_" .. gy
+             local bucket = searchGrid[key]
+             
+             if bucket then
+                 for _, interaction in pairs(bucket) do
+                     if interaction.pinID then
+                         -- Squared Distance Check (Tolerance 0.05)
+                         local dx = pos.x - interaction.pos.x
+                         local dy = pos.y - interaction.pos.y
+                         local dz = pos.z - interaction.pos.z
+                         local distSq = dx*dx + dy*dy + dz*dz
+                         
+                         if distSq < 0.0025 then 
+                             foundInteraction = interaction
+                             break 
+                         end
+                     end
+                 end
+             end
+        end
+
+        -- 3. CACHE THE RESULT
+        if foundInteraction then
+            activeControllers[this] = foundInteraction -- Remember this is a chair
             
-            -- SAFETY CHECK: Ensure ID has a hash and exists in our lookup
-            if id and id.hash and pinLookup[id.hash] then
-                local interaction = pinLookup[id.hash]
-                local record = TweakDBInterface.GetUIIconRecord(interaction.icon)
-                this.iconWidget:SetAtlasResource(record:AtlasResourcePath())
-                this.iconWidget:SetTexturePart(record:AtlasPartName())
-                this.iconWidget:SetTintColor(interaction.iconColor or HDRColor.new({ Red = 0.15829999744892, Green = 1.3033000230789, Blue = 1.4141999483109, Alpha = 1.0 }))
-            end
+            -- Apply style immediately for this first frame
+            local record = TweakDBInterface.GetUIIconRecord(foundInteraction.icon)
+            this.iconWidget:SetAtlasResource(record:AtlasResourcePath())
+            this.iconWidget:SetTexturePart(record:AtlasPartName())
+            this.iconWidget:SetTintColor(foundInteraction.iconColor or HDRColor.new({ Red = 0.15829999744892, Green = 1.3033000230789, Blue = 1.4141999483109, Alpha = 1.0 }))
+        else
+            activeControllers[this] = "ignore" -- Remember this is NOT a chair
         end
     end)
 
     Override("NativeInteractions", "IsCustomMappin", function (_, mappin)
-        if mappin and mappin.GetID then
-            local id = mappin:GetID()
-            -- SAFETY CHECK: Ensure hash is valid
-            if id and id.hash and pinLookup[id.hash] then
-                return true
+        if mappin then
+            -- We can't use the controller cache here (no 'this'), 
+            -- but this function runs much less frequently than UpdateRootState.
+            -- We use the Grid Optimization here to keep it fast.
+            local pos = mappin:GetWorldPosition()
+            
+            if not searchGrid then world.rebuildGrid() end
+            
+            if searchGrid and pos then
+                 local gx = math.floor(pos.x / gridSize)
+                 local gy = math.floor(pos.y / gridSize)
+                 local key = gx .. "_" .. gy
+                 local bucket = searchGrid[key]
+                 if bucket then
+                     for _, interaction in pairs(bucket) do
+                         if interaction.pinID then
+                             local dx = pos.x - interaction.pos.x
+                             local dy = pos.y - interaction.pos.y
+                             local dz = pos.z - interaction.pos.z
+                             if (dx*dx + dy*dy + dz*dz) < 0.0025 then
+                                 return true
+                             end
+                         end
+                     end
+                 end
             end
         end
         return false
@@ -93,35 +173,22 @@ function world.update()
     -- 1. Early Exit
     if Game.GetQuestsSystem():GetFactStr("nif_scene_active") == 1 then return end
 
-    local showInteractions = {} 
-
     -- 2. Cache Player Position
     local posPlayer = GetPlayer():GetWorldPosition()
     local playerForward = GetPlayer():GetWorldForward()
     posPlayer.z = posPlayer.z + 1
 
-    -- 3. Pre-calculate lookup variables
+    -- 3. Cache Math
     local Vector4_GetAngleBetween = Vector4.GetAngleBetween
     local Vector4_new = Vector4.new
 
-    -- GRID BUILDING
-    if not searchGrid then
-        searchGrid = {}
-        for _, interaction in pairs(world.interactions) do
-             if interaction.pos then
-                 local gx = math.floor(interaction.pos.x / gridSize)
-                 local gy = math.floor(interaction.pos.y / gridSize)
-                 local key = gx .. "_" .. gy
-                 
-                 if not searchGrid[key] then searchGrid[key] = {} end
-                 table.insert(searchGrid[key], interaction)
-             end
-        end
-    end
+    -- 4. Grid Check
+    if not searchGrid then world.rebuildGrid() end
 
-    -- SELECTIVE SCANNING
+    -- 5. Selective Scanning (3x3 Area)
     local px = math.floor(posPlayer.x / gridSize)
     local py = math.floor(posPlayer.y / gridSize)
+    local showInteractions = {} 
 
     for x = px - 1, px + 1 do
         for y = py - 1, py + 1 do
@@ -192,20 +259,10 @@ end
 function world.forceIcons()
     for _, interaction in pairs(world.interactions) do
         if interaction.pinID then
-            -- FIX: Check hash before nil-ing
-            if interaction.pinID.hash then
-                pinLookup[interaction.pinID.hash] = nil
-            end
-            
             Game.GetMappinSystem():UnregisterMappin(interaction.pinID)
             
             local data = MappinData.new({ mappinType = 'Mappins.DefaultStaticMappin', variant = gamedataMappinVariant.UseVariant, visibleThroughWalls = false })
             interaction.pinID = Game.GetMappinSystem():RegisterMappin(data, interaction.pos)
-            
-            -- FIX: Check hash before setting
-            if interaction.pinID and interaction.pinID.hash then
-                pinLookup[interaction.pinID.hash] = interaction
-            end
         end
     end
 end
@@ -214,21 +271,11 @@ function world.togglePin(interaction, state)
     if not interaction.icon or interaction.hideIcon then return end
 
     if not state and interaction.pinID then
-        -- FIX: Check hash before nil-ing
-        if interaction.pinID.hash then
-            pinLookup[interaction.pinID.hash] = nil
-        end
-        
         Game.GetMappinSystem():UnregisterMappin(interaction.pinID)
         interaction.pinID = nil
     elseif not interaction.pinID and state then
         local data = MappinData.new({ mappinType = 'Mappins.DefaultStaticMappin', variant = gamedataMappinVariant.UseVariant, visibleThroughWalls = false })
         interaction.pinID = Game.GetMappinSystem():RegisterMappin(data, interaction.pos)
-        
-        -- FIX: Check hash before setting. This was likely the crash cause.
-        if interaction.pinID and interaction.pinID.hash then
-            pinLookup[interaction.pinID.hash] = interaction
-        end
     end
 end
 
@@ -247,8 +294,8 @@ function world.onSessionStart()
         interaction.shown = false
         interaction.pinID = nil
     end
-    pinLookup = {}
     searchGrid = nil
+    activeControllers = setmetatable({}, { __mode = "k" }) -- Clear cache
 end
 
 function world.shutdown()
@@ -257,7 +304,6 @@ function world.shutdown()
             Game.GetMappinSystem():UnregisterMappin(interaction.pinID)
         end
     end
-    pinLookup = {}
 end
 
 return world

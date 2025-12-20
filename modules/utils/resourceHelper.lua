@@ -222,6 +222,12 @@ function helper.patchNodeRefs(scene, path)
                     end
 
                     node.questNode.type.params = params
+                elseif node.questNode.type:IsA("questPrefetchStreaming_NodeTypeV2") then
+                    local replacement = helper.patches[path].propMap[utils.nodeRefToHashString(node.questNode.type.prefetchPositionRef)]
+
+                    if replacement then
+                        node.questNode.type.prefetchPositionRef = CreateNodeRef(replacement)
+                    end
                 end
             elseif node.questNode then
                 if node.questNode:IsA("questEventManagerNodeDefinition") then
@@ -237,6 +243,14 @@ function helper.patchNodeRefs(scene, path)
 
                     if replacement then
                         node.questNode.condition.type.objectRef = CreateNodeRef(replacement)
+                    end
+                elseif node.questNode:IsA("questTeleportPuppetNodeDefinition") then
+                    local replacement = helper.patches[path].propMap[utils.nodeRefToHashString(node.questNode.params.destinationRef.entityReference.reference)]
+
+                    if replacement then
+                        local entityReference = node.questNode.params.destinationRef.entityReference
+                        entityReference.reference = CreateNodeRef(replacement)
+                        node.questNode.params.destinationRef.entityReference = entityReference
                     end
                 end
             end

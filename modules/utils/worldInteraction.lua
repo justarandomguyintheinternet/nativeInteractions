@@ -1,8 +1,14 @@
 local utils = require("modules/utils/utils")
 
+local cellSize = 25
 local world = {
-    interactions = {}
+    interactions = {},
+    searchGrid = {}
 }
+
+local function getGridKey(position)
+    return math.floor(position.x / cellSize) .. "_" .. math.floor(position.y / cellSize)
+end
 
 function world.addInteraction(modulePath, position, interactionRange, angle, icon, iconRange, iconColor, callback) -- Add a in-world interaction with callback for hide / show, icon is optional
     local data = {
@@ -20,18 +26,48 @@ function world.addInteraction(modulePath, position, interactionRange, angle, ico
         hideIcon = false
     }
 
+    local key = getGridKey(position)
+
+    if not world.searchGrid[key] then
+        world.searchGrid[key] = {}
+    end
+
     table.insert(world.interactions, data)
+    table.insert(world.searchGrid[key], world.interactions[#world.interactions])
+
     return #world.interactions
 end
 
 function world.removeInteraction(key)
     if world.interactions[key] then
+        local data = world.interactions[key]
+        local gridKey = getGridKey(data.pos)
+
+        if world.searchGrid[gridKey] then
+            utils.removeItem(world.searchGrid[gridKey], data)
+        end
+
         if world.interactions[key].pinID then
             Game.GetMappinSystem():UnregisterMappin(world.interactions[key].pinID)
         end
 
         world.interactions[key] = nil
     end
+end
+
+function world.getGridInteractions(origin)
+    local originX = math.floor(origin.x / cellSize)
+    local originY = math.floor(origin.y / cellSize)
+    local interactions = {}
+
+    for x = -1, 1 do
+        for y = -1, 1 do
+            local key = (originX + x) .. "_" .. (originY + y)
+            utils.combineHashTable(interactions, world.searchGrid[key] or {})
+        end
+    end
+
+    return interactions
 end
 
 function world.disableInteraction(key, state)
@@ -46,10 +82,10 @@ function world.init()
 
     ObserveAfter("BaseMappinBaseController", "UpdateRootState", function(this) -- Custom pin texture
         local mappin = this:GetMappin()
-        if not mappin then return end
+        if not mappin or this:GetProfile():GetID().value ~= "WorldMappinUIProfile.nif" then return end
 
         local pos = mappin:GetWorldPosition()
-        for _, interaction in pairs(world.interactions) do
+        for _, interaction in pairs(world.getGridInteractions(pos)) do
             if Vector4.Distance(pos, interaction.pos) < 0.05 and interaction.pinID ~= nil then
                 local record = TweakDBInterface.GetUIIconRecord(interaction.icon)
                 this.iconWidget:SetAtlasResource(record:AtlasResourcePath())
@@ -63,7 +99,7 @@ function world.init()
     Override("NativeInteractions", "IsCustomMappin", function (_, mappin)
         if mappin then
             local pos = mappin:GetWorldPosition()
-            for _, interaction in pairs(world.interactions) do
+            for _, interaction in pairs(world.getGridInteractions(pos)) do
                 if Vector4.Distance(pos, interaction.pos) < 0.05 and interaction.pinID ~= nil then
                     return true
                 end
@@ -83,7 +119,7 @@ function world.update()
     local playerForward = GetPlayer():GetWorldForward()
     posPlayer.z = posPlayer.z + 1
 
-    for _, interaction in pairs(world.interactions) do
+    for _, interaction in pairs(world.getGridInteractions(posPlayer)) do
         local update = interaction.shown
         local interactionAngle = 360
 
@@ -157,10 +193,25 @@ function world.togglePin(interaction, state)
 end
 
 function world.updateInteractionPosition(id, position)
-    if world.interactions[id] then
-        world.interactions[id].pos = position
-        if world.interactions[id].pinID then
-            Game.GetMappinSystem():SetMappinPosition(world.interactions[id].pinID, position)
+    local data = world.interactions[id]
+    if data then
+        local oldKey = getGridKey(data.pos)
+        local newKey = getGridKey(position)
+
+        if oldKey ~= newKey then
+            if world.searchGrid[oldKey] then
+                utils.removeItem(world.searchGrid[oldKey], data)
+            end
+
+            if not world.searchGrid[newKey] then
+                world.searchGrid[newKey] = {}
+            end
+            table.insert(world.searchGrid[newKey], data)
+        end
+
+        data.pos = position
+        if data.pinID then
+            Game.GetMappinSystem():SetMappinPosition(data.pinID, position)
         end
     end
 end

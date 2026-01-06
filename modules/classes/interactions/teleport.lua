@@ -65,7 +65,7 @@ function teleport:draw()
     self.targetRef, changed = ImGui.InputTextWithHint('##targetRef', '$/mod/#target', self.targetRef, 250)
     if changed then self.project:save() end
     ImGui.SameLine()
-    style.tooltip("NodeRef of a node who will be used as the destination of the teleport.")
+    style.tooltip("NodeRef of a node who will be used as the destination of the teleport.\nThe node MUST be already streamed in when at the teleport interaction.")
     style.drawNodeRefInfo(self.targetRef, false)
 
     style.mutedText("LocStringID Override:")

@@ -63,7 +63,7 @@ function world.getGridInteractions(origin)
     for x = -1, 1 do
         for y = -1, 1 do
             local key = (originX + x) .. "_" .. (originY + y)
-            utils.combineHashTable(interactions, world.searchGrid[key] or {})
+            utils.combine(interactions, world.searchGrid[key] or {})
         end
     end
 

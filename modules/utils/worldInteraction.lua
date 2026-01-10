@@ -55,10 +55,16 @@ function world.removeInteraction(key)
     end
 end
 
-function world.getGridInteractions(origin)
+function world.getGridInteractions(origin, singleCell)
+    local singleCell = singleCell == nil and false or singleCell
     local originX = math.floor(origin.x / cellSize)
     local originY = math.floor(origin.y / cellSize)
     local interactions = {}
+
+    if singleCell then
+        local key = originX .. "_" .. originY
+        return world.searchGrid[key] or {}
+    end
 
     for x = -1, 1 do
         for y = -1, 1 do
@@ -85,7 +91,7 @@ function world.init()
         if not mappin or this:GetProfile():GetID().value ~= "WorldMappinUIProfile.nif" then return end
 
         local pos = mappin:GetWorldPosition()
-        for _, interaction in pairs(world.getGridInteractions(pos)) do
+        for _, interaction in pairs(world.getGridInteractions(pos, true)) do
             if Vector4.Distance(pos, interaction.pos) < 0.05 and interaction.pinID ~= nil then
                 local record = TweakDBInterface.GetUIIconRecord(interaction.icon)
                 this.iconWidget:SetAtlasResource(record:AtlasResourcePath())
@@ -99,7 +105,7 @@ function world.init()
     Override("NativeInteractions", "IsCustomMappin", function (_, mappin)
         if mappin then
             local pos = mappin:GetWorldPosition()
-            for _, interaction in pairs(world.getGridInteractions(pos)) do
+            for _, interaction in pairs(world.getGridInteractions(pos, true)) do
                 if Vector4.Distance(pos, interaction.pos) < 0.05 and interaction.pinID ~= nil then
                     return true
                 end

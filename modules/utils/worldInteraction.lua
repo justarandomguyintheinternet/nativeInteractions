@@ -1,6 +1,6 @@
 local utils = require("modules/utils/utils")
 
-local cellSize = 25
+local cellSize = 12
 local world = {
     interactions = {},
     searchGrid = {}
@@ -97,7 +97,7 @@ function world.init()
                 this.iconWidget:SetAtlasResource(record:AtlasResourcePath())
                 this.iconWidget:SetTexturePart(record:AtlasPartName())
                 this.iconWidget:SetTintColor(interaction.iconColor or HDRColor.new({ Red = 0.15829999744892, Green = 1.3033000230789, Blue = 1.4141999483109, Alpha = 1.0 }))
-                -- TODO: Bind to style
+                return
             end
         end
     end)
@@ -121,17 +121,17 @@ function world.update()
 
     local showInteractions = {} -- Aggregate all callbacks, make sure only one interaction per modulePath is active
 
-    local posPlayer = GetPlayer():GetWorldPosition()
-    local playerForward = GetPlayer():GetWorldForward()
-    posPlayer.z = posPlayer.z + 1
+    local localToWorld = GetPlayer():GetFPPCameraComponent():GetLocalToWorld()
+    local playerForward = localToWorld:GetAxisY()
+    local posPlayer = localToWorld:GetTranslation()
 
     for _, interaction in pairs(world.getGridInteractions(posPlayer)) do
         local update = interaction.shown
         local interactionAngle = 360
+        local playerInteractionDist = utils.vectorDistance(posPlayer, interaction.pos)
 
-        if utils.vectorDistance(posPlayer, interaction.pos) < interaction.interactionRange then -- Custom callback when in range and look at
+        if playerInteractionDist < interaction.interactionRange then -- Custom callback when in range and look at
             interactionAngle = 180 - Vector4.GetAngleBetween(playerForward, Vector4.new(posPlayer.x - interaction.pos.x, posPlayer.y - interaction.pos.y, posPlayer.z - interaction.pos.z, 0))
-
             if interactionAngle < interaction.angle then
                 update = true and not interaction.disabled
             else
@@ -161,7 +161,7 @@ function world.update()
             interaction.callback(interaction.shown)
         end
 
-        if not interaction.disabled and interaction.icon and utils.vectorDistance(posPlayer, interaction.pos) < interaction.iconRange then -- Hide / show optional icon
+        if not interaction.disabled and interaction.icon and playerInteractionDist < interaction.iconRange then -- Hide / show optional icon
             if not interaction.pinID then
                 world.togglePin(interaction, true)
             end

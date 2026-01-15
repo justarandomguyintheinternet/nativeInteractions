@@ -130,7 +130,7 @@ function interaction:sessionStart() end
 
 function interaction:sessionEnd() end
 
-function interaction:onUpdate() end
+function interaction:onUpdate(playerPosition) end
 
 function interaction:draw() end
 

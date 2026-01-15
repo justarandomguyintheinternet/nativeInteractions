@@ -62,10 +62,10 @@ function iguana:sessionStart()
     self.animationActive = false
 end
 
-function iguana:onUpdate()
-    local distance = GetPlayer():GetWorldPosition():Distance(ToVector4(self.worldIconPosition))
+function iguana:onUpdate(playerPosition)
+    local distance = utils.vectorDistance(playerPosition, self.worldIconPosition)
 
-    if utils.getEntityByRef(self.iguanaRef) and distance < self.animationDistance - 1 and not self.animationActive and not resourceHelper.endEvents[self.endEvent] and Game.GetQuestsSystem():GetFactStr("nif_iguana_idle") == 0 then
+    if distance < self.animationDistance - 1 and utils.getEntityByRef(self.iguanaRef) and not self.animationActive and not resourceHelper.endEvents[self.endEvent] and Game.GetQuestsSystem():GetFactStr("nif_iguana_idle") == 0 then
         -- Delay needed for session start
         self.startCron = Cron.After(0.1, function ()
             Game.GetResourceDepot():RemoveResourceFromCache("nif\\quest\\iguana_idle.scene")

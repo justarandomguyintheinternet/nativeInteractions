@@ -110,7 +110,7 @@ function bar:reset()
     GameObjectEffectHelper.StartEffectEvent(glass, "d_liquid_whiskey_glass_full", true, worldEffectBlackboard.new())
 end
 
-function bar:onUpdate()
+function bar:onUpdate(playerPosition)
     if self.sceneRunning then
         self.drinkLevel = Game.GetQuestsSystem():GetFactStr("nif_drink_level")
         Game.GetQuestsSystem():SetFactStr("nif_enable_drink", (self.drinkLevel <= 2 and self.enableDrink) and 1 or 0)
@@ -120,7 +120,7 @@ function bar:onUpdate()
     if self.drinkLevel == 0 then return end
 
     -- Reset glass if far away
-    local distance = GetPlayer():GetWorldPosition():Distance(ToVector4(self.worldIconPosition))
+    local distance = utils.vectorDistance(playerPosition, self.worldIconPosition)
     if distance > self.resetDistance and distance < self.resetDistance + 5 then
         self:reset()
     end

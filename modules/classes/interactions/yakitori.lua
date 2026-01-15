@@ -91,7 +91,7 @@ function yakitori:reset()
     stick:FindComponentByName("bite_3"):Toggle(false)
 end
 
-function yakitori:onUpdate()
+function yakitori:onUpdate(playerPosition)
     if self.sceneRunning then
         self.eatLevel = Game.GetQuestsSystem():GetFactStr("nif_eat_level")
     end
@@ -99,7 +99,7 @@ function yakitori:onUpdate()
     if self.eatLevel == 0 then return end
 
     -- Reset stick if far away
-    local distance = GetPlayer():GetWorldPosition():Distance(ToVector4(self.worldIconPosition))
+    local distance = utils.vectorDistance(playerPosition, self.worldIconPosition)
     if distance > self.resetDistance and distance < self.resetDistance + 5 then
         self:reset()
     end

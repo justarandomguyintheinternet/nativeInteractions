@@ -72,9 +72,9 @@ function project:sessionEnd()
     end
 end
 
-function project:onUpdate()
+function project:onUpdate(playerPosition)
     for _, interaction in pairs(self.interactions) do
-        interaction:onUpdate()
+        interaction:onUpdate(playerPosition)
     end
 end
 

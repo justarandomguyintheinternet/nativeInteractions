@@ -133,7 +133,7 @@ function biliard:updateProp(ref, position, rotation)
     end
 end
 
-function biliard:onUpdate()
+function biliard:onUpdate(playerPosition)
     if self.sceneRunning and Game.GetQuestsSystem():GetFactStr("nif_scene_active") == 1 then
         self.used = true
         world.disableInteraction(self.worldInteractionID, true)
@@ -161,7 +161,7 @@ function biliard:onUpdate()
     if not self.used then return end
 
     -- Reset scene if far away
-    local distance = GetPlayer():GetWorldPosition():Distance(ToVector4(self.worldIconPosition))
+    local distance = utils.vectorDistance(playerPosition, self.worldIconPosition)
     if distance > self.resetDistance and distance < self.resetDistance + 5 then
         self:reset()
     end

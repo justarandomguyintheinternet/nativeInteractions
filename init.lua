@@ -21,6 +21,7 @@ local manager = require("modules/projectsManager")
 local world = require("modules/utils/worldInteraction")
 local removals = require("modules/removalManager")
 local apartmentManager = require("modules/apartmentManager")
+local bench = require("modules/utils/benchmark")
 
 ---@class mod
 ---@field runtimeData {cetOpen: boolean, inGame: boolean, inMenu: boolean}

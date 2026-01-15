@@ -159,11 +159,17 @@ function apartment:getJournalPatch()
     }
 end
 
+function apartment:start()
+    if not self.sceneRunning then
+        Game.GetQuestsSystem():SetFactStr("nif_apartment_type", self.isTablet and 0 or 1)
+    end
+
+    workspot.start(self)
+end
+
 function apartment:sessionStart()
     -- Remove any mappins
     self:sessionEnd()
-
-    Game.GetQuestsSystem():SetFactStr("nif_apartment_type", self.isTablet and 0 or 1)
 
     -- Add purchased mappin and disable interaction if already purchased
     if Game.GetQuestsSystem():GetFactStr(self.purchasedFact) == 1 then
@@ -241,11 +247,16 @@ function apartment:onSceneEnd()
     end
 end
 
-function apartment:canSendMessage()
-    local inactive = Game.GetJournalManager():GetEntryState(Game.GetJournalManager():GetEntryByString('contacts/muamar_el_capitan_reyes/apartments/' .. self.purchasedFact, 'gameJournalPhoneMessage')) == gameJournalEntryState.Inactive
-    local contactEnabled = Game.GetJournalManager():GetEntryState(Game.GetJournalManager():GetEntryByString('contacts/muamar_el_capitan_reyes/apartments', 'gameJournalPhoneConversation')) == gameJournalEntryState.Active
-    local canPurchase = self:purchaseEnabled()
-    return inactive and canPurchase and self.messageLocKey ~= "" and contactEnabled and self.messageDelayCron == nil
+function apartment:canSendMessage(canPurchase)
+    local journalManager = Game.GetJournalManager()
+
+    local inactive = journalManager:GetEntryState(journalManager:GetEntryByString('contacts/muamar_el_capitan_reyes/apartments/' .. self.purchasedFact, 'gameJournalPhoneMessage')) == gameJournalEntryState.Inactive
+    if not inactive then return false end
+    local contactEnabled = journalManager:GetEntryState(journalManager:GetEntryByString('contacts/muamar_el_capitan_reyes/apartments', 'gameJournalPhoneConversation')) == gameJournalEntryState.Active
+    if not contactEnabled then return false end
+    local canPurchase = canPurchase == nil and self:purchaseEnabled() or canPurchase
+
+    return canPurchase and self.messageLocKey ~= "" and self.messageDelayCron == nil
 end
 
 function apartment:sendMessage()
@@ -259,7 +270,7 @@ function apartment:sendMessage()
     end)
 end
 
-function apartment:onUpdate()
+function apartment:onUpdate(playerPosition)
     local purchaseEnabled = self:purchaseEnabled()
 
     -- Handle purchasing mappin becoming available
@@ -269,14 +280,14 @@ function apartment:onUpdate()
         self:sessionStart()
     end
 
-    if self.messageLocKey ~= "" and self:canSendMessage() then
+    if purchaseEnabled and self.messageLocKey ~= "" and self:canSendMessage(purchaseEnabled) then
         self:sendMessage()
     end
 
     -- Show tutorial
-    if not self.tutorialEnabled or Game.GetQuestsSystem():GetFactStr(self.purchasedFact .. "_tutorial") == 1 or Game.GetQuestsSystem():GetFactStr(self.purchasedFact) == 0 then return end
+    if not self.tutorialEnabled or Game.GetQuestsSystem():GetFactStr(self.purchasedFact) == 0 or Game.GetQuestsSystem():GetFactStr(self.purchasedFact .. "_tutorial") == 1 then return end
 
-    if GetPlayer():GetWorldPosition():Distance(ToVector4(self.apartmentEntrancePosition)) < 1.2 then
+    if utils.vectorDistance(playerPosition, self.apartmentEntrancePosition) < 1.2 then
         Game.GetQuestsSystem():SetFactStr(self.purchasedFact .. "_tutorial", 1)
         utils.showTutorial(self.tutorialLocKey, self.apartmentName, self.apartmentVideo)
     end
@@ -468,8 +479,6 @@ function apartment:drawPurchaseTerminal()
         else
             self:editEnd()
         end
-
-        Game.GetQuestsSystem():SetFactStr("nif_apartment_type", self.isTablet and 0 or 1)
     end
     style.tooltip("Type of the purchase terminal that will be used for this apartment.\nTablet Hand Scanner includes a workspot / animation, while Door Terminal is a simple interaction.")
 

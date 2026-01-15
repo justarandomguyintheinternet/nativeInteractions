@@ -22,8 +22,10 @@ function manager.init(mod)
 end
 
 function manager.update()
+    local playerPosition = GetPlayer():GetWorldPosition()
+
     for _, project in pairs(manager.projects) do
-        project:onUpdate()
+        project:onUpdate(playerPosition)
     end
 end
 

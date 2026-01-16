@@ -121,9 +121,9 @@ function world.update()
 
     local showInteractions = {} -- Aggregate all callbacks, make sure only one interaction per modulePath is active
 
-    local localToWorld = GetPlayer():GetFPPCameraComponent():GetLocalToWorld()
-    local playerForward = localToWorld:GetAxisY()
-    local posPlayer = localToWorld:GetTranslation()
+    local posPlayer = GetPlayer():GetWorldPosition()
+    local playerForward = GetPlayer():GetWorldForward()
+    posPlayer.z = posPlayer.z + 1
 
     for _, interaction in pairs(world.getGridInteractions(posPlayer)) do
         local update = interaction.shown

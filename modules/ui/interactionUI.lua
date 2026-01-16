@@ -167,7 +167,7 @@ function interactionUI.drawBaseOptions()
     style.setNextItemWidth(80)
     interactionUI.interaction.worldIconRange, changed = ImGui.DragFloat("##worldIconRange", interactionUI.interaction.worldIconRange, 0.01, 0.1, 12, "%.2f", ImGuiSliderFlags.NoRoundToFormat)
     if changed then
-        world.interactions[interactionUI.interaction.worldInteractionID].iconRange = interactionUI.interaction.worldIconRange
+        world.interactions[interactionUI.interaction.worldInteractionID].iconRange = interactionUI.interaction.worldIconRange ^ 2
         interactionUI.project:save()
     end
 
@@ -177,7 +177,7 @@ function interactionUI.drawBaseOptions()
     style.setNextItemWidth(80)
     interactionUI.interaction.interactionRange, changed = ImGui.DragFloat("##interactionRange", interactionUI.interaction.interactionRange, 0.01, 0.1, 12, "%.2f", ImGuiSliderFlags.NoRoundToFormat)
     if changed then
-        world.interactions[interactionUI.interaction.worldInteractionID].interactionRange = interactionUI.interaction.interactionRange
+        world.interactions[interactionUI.interaction.worldInteractionID].interactionRange = interactionUI.interaction.interactionRange ^ 2
         interactionUI.project:save()
     end
 

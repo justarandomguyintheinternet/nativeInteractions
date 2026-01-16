@@ -1,5 +1,6 @@
 local utils = require("modules/utils/utils")
 
+local roundRobin = 0
 local cellSize = 12
 local world = {
     interactions = {},
@@ -14,9 +15,9 @@ function world.addInteraction(modulePath, position, interactionRange, angle, ico
     local data = {
         modulePath = modulePath,
         pos = position,
-        interactionRange = interactionRange,
+        interactionRange = interactionRange ^ 2,
         icon = icon,
-        iconRange = iconRange,
+        iconRange = iconRange ^ 2,
         iconColor = iconColor,
         angle = angle,
         callback = callback,
@@ -55,7 +56,7 @@ function world.removeInteraction(key)
     end
 end
 
-function world.getGridInteractions(origin, singleCell)
+function world.getGridInteractions(origin, singleCell, roundRobin)
     local singleCell = singleCell == nil and false or singleCell
     local originX = math.floor(origin.x / cellSize)
     local originY = math.floor(origin.y / cellSize)
@@ -63,6 +64,13 @@ function world.getGridInteractions(origin, singleCell)
 
     if singleCell then
         local key = originX .. "_" .. originY
+        return world.searchGrid[key] or {}
+    end
+
+    if roundRobin then
+        local x = roundRobin % 3 - 1
+        local y = math.floor(roundRobin / 3) - 1
+        local key = (originX + x) .. "_" .. (originY + y)
         return world.searchGrid[key] or {}
     end
 
@@ -125,10 +133,10 @@ function world.update()
     local playerForward = GetPlayer():GetWorldForward()
     posPlayer.z = posPlayer.z + 1
 
-    for _, interaction in pairs(world.getGridInteractions(posPlayer)) do
+    for _, interaction in pairs(world.getGridInteractions(posPlayer, false, roundRobin)) do
         local update = interaction.shown
         local interactionAngle = 360
-        local playerInteractionDist = utils.vectorDistance(posPlayer, interaction.pos)
+        local playerInteractionDist = utils.vectorDistanceSquared(posPlayer, interaction.pos)
 
         if playerInteractionDist < interaction.interactionRange then -- Custom callback when in range and look at
             interactionAngle = 180 - Vector4.GetAngleBetween(playerForward, Vector4.new(posPlayer.x - interaction.pos.x, posPlayer.y - interaction.pos.y, posPlayer.z - interaction.pos.z, 0))
@@ -168,6 +176,11 @@ function world.update()
         elseif interaction.pinID and interaction.icon then
             world.togglePin(interaction, false)
         end
+    end
+
+    roundRobin = roundRobin + 1
+    if roundRobin >= 9 then
+        roundRobin = 0
     end
 
     for _, data in pairs(showInteractions) do

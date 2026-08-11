@@ -40,9 +40,15 @@ local mod = {
 }
 
 function mod:new()
+    registerForEvent("onHook", function ()
+        -- Temporary patch data, as loading all projects/interactions cannot be done yet, as some of them use Game API
+        apartmentManager.loadHookPatches()
+        resourceHelper.hook()
+    end)
+
     registerForEvent("onInit", function()
         self.baseUI.init()
-        resourceHelper.init()
+        resourceHelper.init() -- Must be called before (apartment) interactions are loaded / manager.init
         manager.init(self)
         world.init()
         removals.init(self)
@@ -87,10 +93,6 @@ function mod:new()
 
         if self.runtimeData.inGame then
         end
-
-        -- Allow us to patch the journal
-        Game.GetResourceDepot():RemoveResourceFromCache("nif\\dummy.journal")
-        ArchiveXL.Reload()
     end)
 
     registerForEvent("onUpdate", function (dt)

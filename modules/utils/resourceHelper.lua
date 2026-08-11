@@ -7,7 +7,44 @@ local helper = {
     endEvents = {}
 }
 
+local inputListener
+
+function helper.hook()
+    inputListener = NewProxy({
+        OnJournalLoaded = {
+            args = {"handle:ResourceEvent"},
+            callback = function (event)
+                local resource = event:GetResource()
+                if (resource == nil) then return end
+                if (not resource:IsA("gameJournalResource")) then return end
+
+                local journal = event:GetResource().entry
+
+                for _, patch in pairs(helper.journalPatches) do
+                    if patch.getID() ~= "" then
+                        for _, entry in pairs(journal.entries) do
+                            local patchEntry = patch.patches[entry.id]
+
+                            if patchEntry then
+                                local entries = entry.entries
+                                table.insert(entries, patchEntry.getEntry())
+                                entry.entries = entries
+                            end
+                        end
+                    end
+                end
+            end
+        }
+    })
+
+    Game.GetCallbackSystem():RegisterCallback('Resource/Load', inputListener:Target(), inputListener:Function('OnJournalLoaded'), true)
+        :AddTarget(ResourceTarget.Path("nif\\dummy.journal"))
+end
+
 function helper.init()
+    -- Clear out temporary patches from initial startup, they will be replaced with actual apartment instances backed data
+    helper.journalPatches = {}
+
     Observe('PlayerPuppet', 'OnNIFSceneEvent', function (_, event)
         if helper.endEvents[event.eventAction.value] then
             helper.endEvents[event.eventAction.value](Game.GetQuestsSystem():GetFactStr("nif_scene_active"))
@@ -28,24 +65,6 @@ function helper.init()
         helper.patchNodeRefs(scene, path)
         helper.patchLocalization(scene, path)
         helper.patchRemovals(scene, path)
-    end)
-
-    Observe('NativeInteractions', 'ProcessJournal', function(_, event)
-        local journal = event:GetResource().entry
-
-        for _, patch in pairs(helper.journalPatches) do
-            if patch.getID() ~= "" then
-                for _, entry in pairs(journal.entries) do
-                    local patchEntry = patch.patches[entry.id]
-
-                    if patchEntry then
-                        local entries = entry.entries
-                        table.insert(entries, patchEntry.getEntry())
-                        entry.entries = entries
-                    end
-                end
-            end
-        end
     end)
 end
 

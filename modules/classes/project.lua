@@ -30,7 +30,7 @@ function project:load(data)
     end
 
     self.interactions = {}
-    for _, interactionData in pairs(data.interactions) do
+    for _, interactionData in pairs(data.interactions or {}) do
         local interaction = require(string.format("modules/classes/%s", interactionData.modulePath)):new(self.mod, self)
         interaction:load(interactionData)
         table.insert(self.interactions, interaction)

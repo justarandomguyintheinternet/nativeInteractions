@@ -2,9 +2,11 @@ local utils = require("modules/utils/utils")
 
 local roundRobin = 0
 local cellSize = 12
+
 local world = {
     interactions = {},
-    searchGrid = {}
+    searchGrid = {},
+    interactionCounter = 0
 }
 
 local function getGridKey(position)
@@ -33,10 +35,11 @@ function world.addInteraction(modulePath, position, interactionRange, angle, ico
         world.searchGrid[key] = {}
     end
 
-    table.insert(world.interactions, data)
-    table.insert(world.searchGrid[key], world.interactions[#world.interactions])
+    world.interactionCounter = world.interactionCounter + 1
+    world.interactions[world.interactionCounter] = data
+    table.insert(world.searchGrid[key], data)
 
-    return #world.interactions
+    return world.interactionCounter
 end
 
 function world.removeInteraction(key)

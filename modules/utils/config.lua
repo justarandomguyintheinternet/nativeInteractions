@@ -16,15 +16,23 @@ end
 
 function config.loadFile(path)
     local file = io.open(path, "r")
-    local config = {}
-    local success = pcall(function ()
-        config = json.decode(file:read("*a"))
-    end)
-    if not success then
-        print("Failed to load file: " .. path .. ", restoring empty state")
+    if not file then
+        print("Failed to load file: " .. path .. ", file does not exist.")
+        return {}
     end
+
+    local data = {}
+    local success = pcall(function ()
+        data = json.decode(file:read("*a"))
+    end)
     file:close()
-    return config
+
+    if not success or type(data) ~= "table" then
+        print("Failed to load file: " .. path .. ", restoring empty state")
+        return {}
+    end
+
+    return data
 end
 
 function config.saveFile(path, data)

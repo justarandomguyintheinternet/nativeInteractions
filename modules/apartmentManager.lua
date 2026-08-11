@@ -32,7 +32,7 @@ function apartmentManager.loadHookPatches()
         if file.name:match("^.+(%..+)$") == ".json" then
             local project = config.loadFile(string.format("projects/%s", file.name))
 
-            for _, interactionData in pairs(project.interactions) do
+            for _, interactionData in pairs(project.interactions or {}) do
                 if interactionData.modulePath ~= "interactions/apartment" then
                     goto continue
                 end

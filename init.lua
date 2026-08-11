@@ -73,6 +73,7 @@ function mod:new()
             world.onSessionStart()
             resourceHelper.endEvents = {}
             resourceHelper.patches = {}
+            removals.registerPatches()
             self.baseUI.interactionUI.paused = false
             self.baseUI.interactionUI.fastForward = false
             self.baseUI.interactionUI.cameraExternal = false
@@ -81,6 +82,8 @@ function mod:new()
                 self.baseUI.interactionUI.interaction:editEnd()
                 self.baseUI.interactionUI.interaction = nil
             end
+
+            world.interactionCounter = 0
         end)
 
         self.GameUI.OnSessionEnd(function()

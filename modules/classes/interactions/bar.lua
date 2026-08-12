@@ -60,6 +60,8 @@ function bar:load(data)
 end
 
 function bar:sessionStart()
+    workspot.sessionStart(self)
+
     self:reset()
 end
 

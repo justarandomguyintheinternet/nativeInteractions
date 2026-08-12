@@ -59,7 +59,14 @@ function iguana:getPatchData()
 end
 
 function iguana:sessionStart()
+    workspot.sessionStart(self)
+
     self.animationActive = false
+
+    if self.startCron then
+        Cron.Halt(self.startCron)
+        self.startCron = nil
+    end
 end
 
 function iguana:onUpdate(playerPosition)

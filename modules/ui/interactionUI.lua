@@ -165,8 +165,9 @@ function interactionUI.drawBaseOptions()
     ImGui.SameLine()
     ImGui.SetCursorPosX(interactionUI.maxBasePropertyWidth)
     style.setNextItemWidth(80)
-    interactionUI.interaction.worldIconRange, changed = ImGui.DragFloat("##worldIconRange", interactionUI.interaction.worldIconRange, 0.01, 0.1, 12, "%.2f", ImGuiSliderFlags.NoRoundToFormat)
+    interactionUI.interaction.worldIconRange, changed = ImGui.DragFloat("##worldIconRange", interactionUI.interaction.worldIconRange, 0.01, 0.1, world.cellSize, "%.2f", ImGuiSliderFlags.NoRoundToFormat)
     if changed then
+        interactionUI.interaction.worldIconRange = utils.clamp(interactionUI.interaction.worldIconRange, 0.1, world.cellSize)
         world.interactions[interactionUI.interaction.worldInteractionID].iconRange = interactionUI.interaction.worldIconRange ^ 2
         interactionUI.project:save()
     end
@@ -175,8 +176,9 @@ function interactionUI.drawBaseOptions()
     ImGui.SameLine()
     ImGui.SetCursorPosX(interactionUI.maxBasePropertyWidth)
     style.setNextItemWidth(80)
-    interactionUI.interaction.interactionRange, changed = ImGui.DragFloat("##interactionRange", interactionUI.interaction.interactionRange, 0.01, 0.1, 12, "%.2f", ImGuiSliderFlags.NoRoundToFormat)
+    interactionUI.interaction.interactionRange, changed = ImGui.DragFloat("##interactionRange", interactionUI.interaction.interactionRange, 0.01, 0.1, world.cellSize, "%.2f", ImGuiSliderFlags.NoRoundToFormat)
     if changed then
+        interactionUI.interaction.interactionRange = utils.clamp(interactionUI.interaction.interactionRange, 0.1, world.cellSize)
         world.interactions[interactionUI.interaction.worldInteractionID].interactionRange = interactionUI.interaction.interactionRange ^ 2
         interactionUI.project:save()
     end

@@ -6,7 +6,9 @@ local cellSize = 12
 local world = {
     interactions = {},
     searchGrid = {},
-    interactionCounter = 0
+    interactionCounter = 0,
+    activeInteractions = {}, -- Currently shown interaction per modulePath, so that limiting to one interaction per modulePath is possible with roundRobin
+    cellSize = cellSize
 }
 
 local function getGridKey(position)
@@ -53,6 +55,11 @@ function world.removeInteraction(key)
 
         if world.interactions[key].pinID then
             Game.GetMappinSystem():UnregisterMappin(world.interactions[key].pinID)
+        end
+
+        local active = world.activeInteractions[data.modulePath]
+        if active and active.interaction == data then
+            world.activeInteractions[data.modulePath] = nil
         end
 
         world.interactions[key] = nil
@@ -127,49 +134,51 @@ function world.init()
     end)
 end
 
-function world.update()
-    if Game.GetQuestsSystem():GetFactStr("nif_scene_active") == 1 then return end -- Dont update if a scene is running
+---Returns whether the interaction should be shown, together with the look at angle and the squared distance
+local function evaluateInteraction(interaction, posPlayer, playerForward)
+    local playerInteractionDist = utils.vectorDistanceSquared(posPlayer, interaction.pos)
 
-    local showInteractions = {} -- Aggregate all callbacks, make sure only one interaction per modulePath is active
+    if interaction.disabled or playerInteractionDist >= interaction.interactionRange then
+        return false, 360, playerInteractionDist
+    end
 
-    local posPlayer = GetPlayer():GetWorldPosition()
-    local playerForward = GetPlayer():GetWorldForward()
-    posPlayer.z = posPlayer.z + 1
+    local interactionAngle = 180 - Vector4.GetAngleBetween(playerForward, Vector4.new(posPlayer.x - interaction.pos.x, posPlayer.y - interaction.pos.y, posPlayer.z - interaction.pos.z, 0))
 
-    for _, interaction in pairs(world.getGridInteractions(posPlayer, false, roundRobin)) do
-        local update = interaction.shown
-        local interactionAngle = 360
-        local playerInteractionDist = utils.vectorDistanceSquared(posPlayer, interaction.pos)
+    return interactionAngle < interaction.angle, interactionAngle, playerInteractionDist
+end
 
-        if playerInteractionDist < interaction.interactionRange then -- Custom callback when in range and look at
-            interactionAngle = 180 - Vector4.GetAngleBetween(playerForward, Vector4.new(posPlayer.x - interaction.pos.x, posPlayer.y - interaction.pos.y, posPlayer.z - interaction.pos.z, 0))
-            if interactionAngle < interaction.angle then
-                update = true and not interaction.disabled
-            else
-                update = false
-            end
+local function hideInteraction(interaction)
+    local active = world.activeInteractions[interaction.modulePath]
+    if active and active.interaction == interaction then
+        world.activeInteractions[interaction.modulePath] = nil
+    end
+
+    if not interaction.shown then return end
+
+    interaction.shown = false
+    interaction.callback(false)
+end
+
+local function showInteraction(interaction, interactionAngle)
+    local active = world.activeInteractions[interaction.modulePath]
+    if active and active.interaction ~= interaction then
+        hideInteraction(active.interaction)
+    end
+
+    interaction.shown = true
+    world.activeInteractions[interaction.modulePath] = { angle = interactionAngle, interaction = interaction }
+end
+
+local function scanCell(cell, posPlayer, playerForward)
+    for _, interaction in pairs(cell) do
+        local show, interactionAngle, playerInteractionDist = evaluateInteraction(interaction, posPlayer, playerForward)
+        local active = world.activeInteractions[interaction.modulePath]
+
+        -- Ensure only one per modulePath is active at a time, the closest one to the crosshair wins
+        if show and (not active or active.interaction == interaction or interactionAngle < active.angle) then
+            showInteraction(interaction, interactionAngle)
         else
-            update = false
-        end
-
-        -- Ensure only one per modulePath is active at a time
-        if update then
-            if not showInteractions[interaction.modulePath] then
-                interaction.shown = true
-                showInteractions[interaction.modulePath] = { angle = interactionAngle, interaction = interaction }
-            elseif interactionAngle < showInteractions[interaction.modulePath].angle then
-                showInteractions[interaction.modulePath].interaction.shown = false
-                showInteractions[interaction.modulePath].interaction.callback(false)
-
-                interaction.shown = true
-                showInteractions[interaction.modulePath] = { angle = interactionAngle, interaction = interaction }
-            else
-                interaction.shown = false
-                interaction.callback(false)
-            end
-        elseif interaction.shown then
-            interaction.shown = update
-            interaction.callback(interaction.shown)
+            hideInteraction(interaction)
         end
 
         if not interaction.disabled and interaction.icon and playerInteractionDist < interaction.iconRange then -- Hide / show optional icon
@@ -180,14 +189,35 @@ function world.update()
             world.togglePin(interaction, false)
         end
     end
+end
+
+function world.update()
+    if Game.GetQuestsSystem():GetFactStr("nif_scene_active") == 1 then return end -- Dont update if a scene is running
+
+    local posPlayer = GetPlayer():GetWorldPosition()
+    local playerForward = GetPlayer():GetWorldForward()
+    posPlayer.z = posPlayer.z + 1
+
+    -- Re-check the active interactions
+    for _, active in pairs(world.activeInteractions) do
+        local show, interactionAngle = evaluateInteraction(active.interaction, posPlayer, playerForward)
+
+        if show then
+            active.angle = interactionAngle
+        else
+            hideInteraction(active.interaction)
+        end
+    end
+
+    scanCell(world.getGridInteractions(posPlayer, false, roundRobin), posPlayer, playerForward)
 
     roundRobin = roundRobin + 1
     if roundRobin >= 9 then
         roundRobin = 0
     end
 
-    for _, data in pairs(showInteractions) do
-        data.interaction.callback(data.interaction.shown)
+    for _, active in pairs(world.activeInteractions) do
+        active.interaction.callback(true)
     end
 end
 
@@ -239,6 +269,8 @@ function world.updateInteractionPosition(id, position)
 end
 
 function world.onSessionStart() -- Save loaded, all pins are gone
+    world.activeInteractions = {}
+
     for _, interaction in pairs(world.interactions) do
         interaction.shown = false
         interaction.pinID = nil

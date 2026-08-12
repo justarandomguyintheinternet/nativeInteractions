@@ -73,6 +73,8 @@ function project:sessionEnd()
 end
 
 function project:onUpdate(playerPosition)
+    if not self.enabled then return end
+
     for _, interaction in pairs(self.interactions) do
         interaction:onUpdate(playerPosition)
     end
@@ -85,6 +87,7 @@ function project:enable()
 
     for _, interaction in pairs(self.interactions) do
         world.disableInteraction(interaction.worldInteractionID, false)
+        interaction:sessionStart() -- Needed so that apartment can potentially disable itself
     end
 end
 
@@ -94,6 +97,9 @@ function project:disable()
     self.enabled = false
 
     for _, interaction in pairs(self.interactions) do
+        -- The editor UI stops drawing a disabled project, so end any ongoing edit instead of leaking its preview entity
+        interaction:editEnd()
+        interaction:sessionEnd()
         world.disableInteraction(interaction.worldInteractionID, true)
     end
 end

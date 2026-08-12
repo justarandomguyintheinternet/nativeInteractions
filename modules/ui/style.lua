@@ -197,7 +197,7 @@ function style.trackedSearchDropdown(text, searchHint, value, options, width)
         local xButton, _ = ImGui.GetItemRectSize()
         if ImGui.BeginChild("##list", x + xButton + ImGui.GetStyle().ItemSpacing.x, 120 * style.viewSize) then
             for _, option in pairs(options) do
-                if option:lower():match(value:lower()) and ImGui.Selectable(option) then
+                if option:lower():find(value:lower(), 1, true) and ImGui.Selectable(option) then
                     value = option
                     finished = true
                     ImGui.CloseCurrentPopup()

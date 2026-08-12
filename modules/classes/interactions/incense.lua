@@ -52,6 +52,8 @@ function incense:load(data)
 end
 
 function incense:sessionStart()
+    workspot.sessionStart(self)
+
     self:reset()
 end
 
@@ -157,6 +159,7 @@ function incense:save()
     local data = workspot.save(self)
 
     data.incenseRef = self.incenseRef
+    data.resetDistance = self.resetDistance
 
     return data
 end

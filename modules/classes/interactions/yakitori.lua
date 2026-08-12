@@ -46,6 +46,8 @@ function yakitori:load(data)
 end
 
 function yakitori:sessionStart()
+    workspot.sessionStart(self)
+
     self:reset()
 end
 

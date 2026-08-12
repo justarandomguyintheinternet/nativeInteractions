@@ -47,6 +47,8 @@ function mirror:getPatchData()
 end
 
 function mirror:sessionStart()
+    workspot.sessionStart(self)
+
     Game.GetWorldStateSystem():ToggleNode(CreateNodeRef(self.mirrorMeshRef), false)
 end
 

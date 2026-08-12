@@ -110,7 +110,7 @@ function savedUI.draw(mod)
     ImGui.BeginChild("savedUI", -1, 7 * ImGui.GetFrameHeightWithSpacing())
 
     for _, project in pairs(manager.projects) do
-        if (project.name:lower():match(savedUI.filter:lower())) ~= nil then
+        if project.name:lower():find(savedUI.filter:lower(), 1, true) ~= nil then
             ImGui.PushID(project.name)
 
             style.pushButtonNoBG(true)

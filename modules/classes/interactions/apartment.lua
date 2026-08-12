@@ -168,6 +168,12 @@ function apartment:start()
 end
 
 function apartment:sessionStart()
+    workspot.sessionStart(self)
+
+    self:refresh()
+end
+
+function apartment:refresh()
     -- Remove any mappins
     self:sessionEnd()
 
@@ -205,7 +211,7 @@ function apartment:reset()
     Game.AddToInventory("Items.money", self.cost)
     Game.GetJournalManager():ChangeEntryState('contacts/muamar_el_capitan_reyes/apartments/' .. self.purchasedFact, 'gameJournalPhoneMessage', gameJournalEntryState.Inactive, gameJournalNotifyOption.Notify)
 
-    self:sessionStart()
+    self:refresh()
 end
 
 function apartment:sessionEnd()
@@ -243,7 +249,7 @@ function apartment:onSceneEnd()
 
         Game.GetTransactionSystem():RemoveItem(GetPlayer(), ItemID.FromTDBID("Items.money"), self.cost)
 
-        self:sessionStart()
+        self:refresh()
     end
 end
 
@@ -275,9 +281,9 @@ function apartment:onUpdate(playerPosition)
 
     -- Handle purchasing mappin becoming available
     if purchaseEnabled and not self.purchaseMappinID then
-        self:sessionStart()
+        self:refresh()
     elseif not purchaseEnabled and self.purchaseMappinID then
-        self:sessionStart()
+        self:refresh()
     end
 
     if purchaseEnabled and self.messageLocKey ~= "" and self:canSendMessage(purchaseEnabled) then
@@ -372,7 +378,6 @@ function apartment:drawBase()
     ImGui.SetCursorPosX(self.maxBasePropertyWidth)
     style.setNextItemWidth(250)
     local text, changed = ImGui.InputTextWithHint('##purchasedFact', 'apartment_id', self.purchasedFact, 250)
-    if changed then self.project:save() end
     if ImGui.IsItemDeactivatedAfterEdit() then
         self:removeKey()
         self:removeIcon()
@@ -384,7 +389,8 @@ function apartment:drawBase()
         self:addIcon()
         self:addOffer()
         -- Update mappins
-        self:sessionStart()
+        self:refresh()
+        self.project:save()
     end
     reloadJournalOnEdit()
     style.tooltip("Must be set to something. This fact will be set to 1 when the apartment is purchased.")
@@ -488,13 +494,13 @@ function apartment:drawPurchaseTerminal()
     style.setNextItemWidth(250)
     local ref, changed = ImGui.InputTextWithHint('##terminalRef', '$/mod/#apartment_terminal', self.isTablet and self.tabletRef or self.terminalRef, 250)
     if changed then
-        self.project:save()
-
         if self.isTablet then
             self.tabletRef = ref
         else
             self.terminalRef = ref
         end
+
+        self.project:save()
     end
     style.tooltip("NodeRef of the purchase terminal/scanner that will be used for this apartment.")
     ImGui.SameLine()
@@ -519,7 +525,7 @@ function apartment:drawPositions()
         if self.purchaseMappinID then
             Game.GetMappinSystem():SetMappinPosition(self.purchaseMappinID, ToVector4(self.apartmentPurchasePosition))
         elseif not self.purchaseMappinID then
-            self:sessionStart()
+            self:refresh()
         end
     end
     ImGui.SameLine()
@@ -535,7 +541,7 @@ function apartment:drawPositions()
         if self.apartmentMappinID then
             Game.GetMappinSystem():SetMappinPosition(self.apartmentMappinID, ToVector4(self.apartmentPurchasedPosition))
         elseif not self.apartmentMappinID then
-            self:sessionStart()
+            self:refresh()
         end
     end
     ImGui.SameLine()

@@ -65,6 +65,7 @@ function workspot:stop()
     interaction.stop(self)
 end
 
+---Subclasses overriding this must call workspot.sessionStart(self), the preview entity does not survive a session change
 function workspot:sessionStart()
     self.previewEntityID = nil
 end
@@ -81,6 +82,7 @@ end
 function workspot:editEnd()
     if not self.previewEntityID then return end
     Game.GetStaticEntitySystem():DespawnEntity(self.previewEntityID)
+    self.previewEntityID = nil
 end
 
 function workspot:updatePreview()

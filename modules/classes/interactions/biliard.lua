@@ -73,6 +73,8 @@ function biliard:load(data)
 end
 
 function biliard:sessionStart()
+    workspot.sessionStart(self)
+
     self:reset()
 end
 
@@ -233,6 +235,7 @@ function biliard:save()
     data.stickRef = self.stickRef
     data.ballRef = self.ballRef
     data.cueBallRef = self.cueBallRef
+    data.resetDistance = self.resetDistance
 
     return data
 end

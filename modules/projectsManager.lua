@@ -41,6 +41,36 @@ function manager.sessionEnd()
     end
 end
 
+---@param name string
+---@param ignore project?
+---@return boolean
+local function isNameTaken(name, ignore)
+    if ignore and ignore.name == name then return false end
+
+    for _, project in pairs(manager.projects) do
+        if project ~= ignore and project.name == name then
+            return true
+        end
+    end
+
+    return false
+end
+
+---@param name string
+---@param ignore project?
+---@return string
+function manager.getUniqueName(name, ignore)
+    local unique = name
+    local suffix = 1
+
+    while isNameTaken(unique, ignore) do
+        suffix = suffix + 1
+        unique = string.format("%s_%d", name, suffix)
+    end
+
+    return unique
+end
+
 function manager.addProject(project)
     table.insert(manager.projects, project)
 end

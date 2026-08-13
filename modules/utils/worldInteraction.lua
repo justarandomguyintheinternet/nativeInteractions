@@ -27,8 +27,7 @@ function world.addInteraction(modulePath, position, interactionRange, angle, ico
         callback = callback,
         pinID = nil,
         shown = false,
-        disabled = false,
-        hideIcon = false
+        disabled = false
     }
 
     local key = getGridKey(position)
@@ -233,7 +232,7 @@ function world.forceIcons()
 end
 
 function world.togglePin(interaction, state)
-    if not interaction.icon or interaction.hideIcon then return end
+    if not interaction.icon then return end
 
     if not state and interaction.pinID then
         Game.GetMappinSystem():UnregisterMappin(interaction.pinID)

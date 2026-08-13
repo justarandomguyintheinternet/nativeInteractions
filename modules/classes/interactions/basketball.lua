@@ -62,7 +62,7 @@ end
 function basketball:onSceneEnd()
     local ball = utils.getEntityByRef(self.basketballRef)
 
-    if ball then
+    if ball and self.ballPosition then
         local transform = ball:GetWorldTransform()
         transform:SetPosition(self.ballPosition)
         transform:SetOrientation(self.ballOrientation)

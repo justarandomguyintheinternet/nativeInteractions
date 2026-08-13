@@ -1,7 +1,6 @@
 local style = require("modules/ui/style")
 local utils = require("modules/utils/utils")
 local world = require("modules/utils/worldInteraction")
-local resourceHelper = require("modules/utils/resourceHelper")
 local workspot = require("modules/classes/interactions/workspot")
 
 ---Class for biliard interaction
@@ -141,15 +140,17 @@ function biliard:onUpdate(playerPosition)
         world.disableInteraction(self.worldInteractionID, true)
 
         local cueBall = utils.getEntityByRef(self.cueBallRef)
-        if cueBall then
-            local localToWorld = cueBall:FindComponentByName("ball_b_billiard0582"):GetLocalToWorld()
+        local cueBallComponent = cueBall and cueBall:FindComponentByName("ball_b_billiard0582")
+        if cueBallComponent then
+            local localToWorld = cueBallComponent:GetLocalToWorld()
             self.cueBallEndPosition = localToWorld:GetTranslation()
             self.cueBallEndOrientation = localToWorld:GetRotation():ToQuat()
         end
 
         local ball = utils.getEntityByRef(self.ballRef)
-        if ball then
-            local localToWorld = ball:FindComponentByName("ball_b_billiard0582"):GetLocalToWorld()
+        local ballComponent = ball and ball:FindComponentByName("ball_b_billiard0582")
+        if ballComponent then
+            local localToWorld = ballComponent:GetLocalToWorld()
             self.ballEndPosition = localToWorld:GetTranslation()
             self.ballEndOrientation = localToWorld:GetRotation():ToQuat()
         end

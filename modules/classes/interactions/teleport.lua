@@ -33,6 +33,11 @@ function teleport:new(mod, project)
    	return o
 end
 
+---@return boolean
+function teleport:hasValidLocStringID()
+    return self.locStringIDOverride:match("^%d+$") ~= nil
+end
+
 function teleport:getPatchData()
     local data = interaction.getPatchData(self)
 
@@ -40,7 +45,7 @@ function teleport:getPatchData()
         ["8881591269491424326"] = self.targetRef
     }
 
-    if self.locStringIDOverride ~= "" then
+    if self:hasValidLocStringID() then
         data.locMap = {
             [6146] = CreateCRUID(loadstring("return " .. self.locStringIDOverride .. "ULL", "")())
         }
@@ -76,6 +81,12 @@ function teleport:draw()
     if changed then self.project:save() end
     ImGui.SameLine()
     style.drawHelp("Override LocStringID for the interaction prompt. Is NOT a LocKey, use SoundDB to find a fitting replacement.", "https://sounddb.redmodding.org/subtitles")
+
+    if self.locStringIDOverride ~= "" and not self:hasValidLocStringID() then
+        ImGui.SameLine()
+        style.styledText(IconGlyphs.AlertOutline, 0xFF0000FF)
+        style.tooltip("Must be a number, override is ignored")
+    end
 
     style.sectionHeaderEnd()
 end

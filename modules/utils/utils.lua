@@ -25,11 +25,12 @@ end
 ---@param value any
 ---@return integer
 function miscUtils.indexValue(table, value)
-    local index={}
-    for k,v in pairs(table) do
-        index[v]=k
+    for k, v in pairs(table) do
+        if v == value then
+            return k
+        end
     end
-    return index[value] or -1
+    return -1
 end
 
 ---@param tab table
@@ -64,8 +65,18 @@ end
 
 ---@param tab table
 ---@param val any
+---@return integer amount
 function miscUtils.removeItem(tab, val)
-    table.remove(tab, miscUtils.indexValue(tab, val))
+    local amount = 0
+
+    for i = #tab, 1, -1 do
+        if tab[i] == val then
+            table.remove(tab, i)
+            amount = amount + 1
+        end
+    end
+
+    return amount
 end
 
 function miscUtils.addVector(v1, v2)

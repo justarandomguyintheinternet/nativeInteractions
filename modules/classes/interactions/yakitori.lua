@@ -77,6 +77,13 @@ function yakitori:stop()
     workspot.stop(self)
 end
 
+local function toggleComponent(entity, name, state)
+    local component = entity:FindComponentByName(name)
+    if not component then return end
+
+    component:Toggle(state)
+end
+
 function yakitori:reset()
     self.eatLevel = 0
     if self.sceneRunning then
@@ -87,10 +94,10 @@ function yakitori:reset()
 
     if not stick then return end
 
-    stick:FindComponentByName("full"):Toggle(true)
-    stick:FindComponentByName("bite_1"):Toggle(false)
-    stick:FindComponentByName("bite_2"):Toggle(false)
-    stick:FindComponentByName("bite_3"):Toggle(false)
+    toggleComponent(stick, "full", true)
+    toggleComponent(stick, "bite_1", false)
+    toggleComponent(stick, "bite_2", false)
+    toggleComponent(stick, "bite_3", false)
 end
 
 function yakitori:onUpdate(playerPosition)

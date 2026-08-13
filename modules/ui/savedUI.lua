@@ -41,13 +41,19 @@ function savedUI.drawLoaded()
         local currentProject = savedUI.mod.baseUI.editUI.project
 
         if savedUI.loadedFileName ~= "" then
-            savedUI.loadedFileName = utils.createFileName(savedUI.loadedFileName)
-            os.rename("projects/" .. currentProject.name .. ".json", "projects/" .. savedUI.loadedFileName .. ".json")
-            currentProject.name = savedUI.loadedFileName
-            currentProject:save()
-        else
-            savedUI.loadedFileName = currentProject.name
+            local name = manager.getUniqueName(utils.createFileName(savedUI.loadedFileName), currentProject)
+
+            if name ~= currentProject.name then
+                local success, err = os.rename("projects/" .. currentProject.name .. ".json", "projects/" .. name .. ".json")
+
+                if success then
+                    currentProject.name = name
+                    currentProject:save()
+                end
+            end
         end
+
+        savedUI.loadedFileName = currentProject.name
     end
 
     style.mutedText("Interactions:")
@@ -64,7 +70,7 @@ function savedUI.drawCreateNew()
     style.pushButtonNoBG(true)
     style.pushGreyedOut(savedUI.newFileName == "")
     if ImGui.Button(IconGlyphs.ContentSaveOutline) and savedUI.newFileName ~= "" then
-        savedUI.newFileName = utils.createFileName(savedUI.newFileName)
+        savedUI.newFileName = manager.getUniqueName(utils.createFileName(savedUI.newFileName))
 
         local new = require("modules/classes/project"):new(savedUI.mod)
         new.name = savedUI.newFileName
@@ -146,23 +152,24 @@ function savedUI.draw(mod)
 end
 
 function savedUI.handlePopUp()
+    -- Opening is a one shot, otherwise closing via Esc / the X would get undone by the OpenPopup of the next frame
     if savedUI.popup then
         ImGui.OpenPopup("Delete Project?")
-        if ImGui.BeginPopupModal("Delete Project?", true, ImGuiWindowFlags.AlwaysAutoResize) then
-            if ImGui.Button("Cancel") then
-                ImGui.CloseCurrentPopup()
-                savedUI.popup = false
-            end
+        savedUI.popup = false
+    end
 
-            ImGui.SameLine()
-
-            if ImGui.Button("Confirm") then
-                ImGui.CloseCurrentPopup()
-                savedUI.delete(savedUI.deleteData)
-                savedUI.popup = false
-            end
-            ImGui.EndPopup()
+    if ImGui.BeginPopupModal("Delete Project?", true, ImGuiWindowFlags.AlwaysAutoResize) then
+        if ImGui.Button("Cancel") then
+            ImGui.CloseCurrentPopup()
         end
+
+        ImGui.SameLine()
+
+        if ImGui.Button("Confirm") then
+            ImGui.CloseCurrentPopup()
+            savedUI.delete(savedUI.deleteData)
+        end
+        ImGui.EndPopup()
     end
 end
 

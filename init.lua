@@ -47,6 +47,8 @@ function mod:new()
     end)
 
     registerForEvent("onInit", function()
+        math.randomseed(os.time())
+
         self.baseUI.init()
         resourceHelper.init() -- Must be called before (apartment) interactions are loaded / manager.init
         manager.init(self)

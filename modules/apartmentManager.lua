@@ -73,12 +73,22 @@ function apartmentManager.addApartment(apartment)
     table.insert(apartmentManager.apartments, apartment)
 
     if apartment.messageLocKey ~= "" then
-        resourceHelper.registerJournalPatch(apartment:getJournalPatch(), apartment.choiceUniqueID)
+        apartmentManager.registerJournalPatch(apartment)
     end
 end
 
 function apartmentManager.removeApartment(apartment)
     utils.removeItem(apartmentManager.apartments, apartment)
+    apartmentManager.removeJournalPatch(apartment)
+end
+
+---@param apartment apartment
+function apartmentManager.registerJournalPatch(apartment)
+    resourceHelper.registerJournalPatch(apartment:getJournalPatch(), apartment.choiceUniqueID)
+end
+
+---@param apartment apartment
+function apartmentManager.removeJournalPatch(apartment)
     resourceHelper.removeJournalPatch(apartment.choiceUniqueID)
 end
 

@@ -13,10 +13,11 @@ local prune = false
 
 ---@param timeout number
 ---@param recurring boolean
+---@param ticks number
 ---@param callback function
 ---@param args
 ---@return any
-local function addTimer(timeout, recurring, callback, args)
+local function addTimer(timeout, recurring, ticks, callback, args)
     if type(timeout) ~= 'number' then
         return
     end
@@ -51,6 +52,7 @@ local function addTimer(timeout, recurring, callback, args)
         active = true,
         halted = false,
         delay = timeout,
+        ticks = ticks,
         args = args,
     }
 
@@ -84,7 +86,7 @@ end
 ---@param data
 ---@return any
 function Cron.After(timeout, callback, data)
-    return addTimer(timeout, false, callback, data)
+    return addTimer(timeout, false, -1, callback, data)
 end
 
 ---@param timeout number
@@ -92,14 +94,21 @@ end
 ---@param data
 ---@return any
 function Cron.Every(timeout, callback, data)
-    return addTimer(timeout, true, callback, data)
+    return addTimer(timeout, true, -1, callback, data)
 end
 
 ---@param callback function
 ---@param data
 ---@return any
 function Cron.NextTick(callback, data)
-    return addTimer(0, false, callback, data)
+    return addTimer(0, false, -1, callback, data)
+end
+
+---@param callback function
+---@param data
+---@return any
+function Cron.AfterTicks(ticks, callback, data)
+	return addTimer(1, false, ticks, callback, data)
 end
 
 ---@param timerId any
@@ -117,6 +126,10 @@ function Cron.Halt(timerId)
             break
         end
     end
+end
+
+function Cron.HaltAll()
+	timers = {}
 end
 
 ---@param timerId any
@@ -162,9 +175,13 @@ function Cron.Update(delta)
 
     for _, timer in ipairs(timers) do
         if timer.active then
-            timer.delay = timer.delay - delta
+            if timer.ticks == -1 then
+                timer.delay = timer.delay - delta
+            else
+                timer.ticks = timer.ticks - 1
+            end
 
-            if timer.delay <= 0 then
+            if timer.delay <= 0 or timer.ticks == 0 then
                 if timer.recurring then
                     timer.delay = timer.delay + timer.timeout
                 else

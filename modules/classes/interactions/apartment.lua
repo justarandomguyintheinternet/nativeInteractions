@@ -616,7 +616,15 @@ function apartment:drawMedia()
     style.setNextItemWidth(250)
     local newText, _ = ImGui.InputTextWithHint('##messageLocKey', 'LocKey#99999', self.messageLocKey, 250)
     if ImGui.IsItemDeactivatedAfterEdit() then
+        local wasEmpty = self.messageLocKey == ""
         self.messageLocKey = newText
+
+        if wasEmpty and newText ~= "" then
+            apartmentManager.registerJournalPatch(self)
+        elseif not wasEmpty and newText == "" then
+            apartmentManager.removeJournalPatch(self)
+        end
+
         self.project:save()
     end
     reloadJournalOnEdit()

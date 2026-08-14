@@ -134,21 +134,23 @@ function helper.patchOffsets(scene, path)
     -- Patch animation offsets
     for _, node in pairs(scene.sceneGraph.graph) do
         if node:IsA("scnSectionNode") then
-            for _, event in pairs(node.events) do
+            for _, event in pairs(node.events or {}) do
                 if event:IsA("scnPlaySkAnimEvent") then
                     local data = event.rootMotionData
-                    -- Some animation events have an offset defined in the scene file, so use that additionally
-                    local pos = utils.addVector(helper.patches[path].animationPosition, helper.patches[path].animationRotation:ToQuat():Transform(data.originOffset:GetPosition()))
-                    local rot = utils.addEuler(helper.patches[path].animationRotation, data.originOffset:GetOrientation():ToEulerAngles())
-                    data.originOffset = Transform.new({ position = pos, orientation = rot:ToQuat() })
-                    event.rootMotionData = data
+                    if data then
+                        -- Some animation events have an offset defined in the scene file, so use that additionally
+                        local pos = utils.addVector(helper.patches[path].animationPosition, helper.patches[path].animationRotation:ToQuat():Transform(data.originOffset:GetPosition()))
+                        local rot = utils.addEuler(helper.patches[path].animationRotation, data.originOffset:GetOrientation():ToEulerAngles())
+                        data.originOffset = Transform.new({ position = pos, orientation = rot:ToQuat() })
+                        event.rootMotionData = data
+                    end
                 end
             end
         end
     end
 
     local workspots = scene.workspotInstances
-    for _, workspot in pairs(workspots) do
+    for _, workspot in pairs(workspots or {}) do
         local pos = utils.addVector(helper.patches[path].animationPosition, helper.patches[path].animationRotation:ToQuat():Transform(workspot.localTransform:GetPosition()))
         local rot = utils.addEuler(helper.patches[path].animationRotation, workspot.localTransform:GetOrientation():ToEulerAngles())
         workspot.localTransform = Transform.new({ position = pos, orientation = rot:ToQuat() })
@@ -188,7 +190,7 @@ function helper.patchNodeRefs(scene, path)
     -- NodeRefs graph
     for _, node in pairs(scene.sceneGraph.graph) do
         if node:IsA("scnSectionNode") then
-            for _, event in pairs(node.events) do
+            for _, event in pairs(node.events or {}) do
                 if event:IsA("scneventsVFXEvent") then
                     local replacement = helper.patches[path].propMap[utils.nodeRefToHashString(event.nodeRef)]
 

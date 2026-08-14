@@ -49,7 +49,9 @@ end
 function mirror:sessionStart()
     workspot.sessionStart(self)
 
-    Game.GetWorldStateSystem():ToggleNode(CreateNodeRef(self.mirrorMeshRef), false)
+    if self.mirrorMeshRef ~= "" then
+        Game.GetWorldStateSystem():ToggleNode(CreateNodeRef(self.mirrorMeshRef), false)
+    end
 end
 
 function mirror:draw()

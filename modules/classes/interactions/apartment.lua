@@ -308,14 +308,20 @@ function apartment:addKey()
 end
 
 function apartment:removeKey()
+    if self.purchasedFact == "" then return end
+
     TweakDB:DeleteRecord("Keycards." .. self.purchasedFact)
 end
 
 function apartment:removeIcon()
+    if self.purchasedFact == "" then return end
+
     TweakDB:DeleteRecord("UIJournalIcons." .. self.purchasedFact)
 end
 
 function apartment:removeOffer()
+    if self.purchasedFact == "" then return end
+
     TweakDB:DeleteRecord("EconomicAssignment." .. self.purchasedFact)
     TweakDB:DeleteRecord("Apartment." .. self.purchasedFact)
 end

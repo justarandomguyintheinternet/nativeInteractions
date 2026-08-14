@@ -21,6 +21,7 @@ local manager = require("modules/projectsManager")
 local world = require("modules/utils/worldInteraction")
 local removals = require("modules/removalManager")
 local apartmentManager = require("modules/apartmentManager")
+local utils = require("modules/utils/utils")
 
 ---@class mod
 ---@field runtimeData {cetOpen: boolean, inGame: boolean, inMenu: boolean}
@@ -116,7 +117,7 @@ function mod:new()
     registerForEvent("onShutdown", function ()
         world.shutdown()
         manager.shutdown()
-        SaveLocksManager.RequestSaveLockRemove("nif")
+        utils.removeSaveLock(999)
     end)
 
     registerForEvent("onOverlayOpen", function()

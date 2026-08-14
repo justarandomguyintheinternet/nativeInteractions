@@ -1,6 +1,11 @@
 local utils = require("modules/utils/utils")
 local style = require("modules/ui/style")
 local world = require("modules/utils/worldInteraction")
+local ref = require("modules/utils/Ref")
+
+local function getDefaultIconColor()
+    return { Red = 0.15829999744892, Green = 1.3033000230789, Blue = 1.4141999483109, Alpha = 1.0 }
+end
 
 ---@class interactionUI
 ---@field public mod mod?
@@ -139,9 +144,58 @@ function interactionUI.drawYaw(yaw, key)
     return yaw, changed, finished
 end
 
+---@param color { Red: number, Green: number, Blue: number, Alpha: number }
+---@param useColor boolean
+function interactionUI.setIconColor(color, useColor)
+    interactionUI.interaction.worldIconColor = color
+    interactionUI.interaction.useWorldIconColor = useColor
+    interactionUI.project:save()
+
+    local worldInteraction = world.interactions[interactionUI.interaction.worldInteractionID]
+    if not worldInteraction then return end
+
+    if useColor then
+        worldInteraction.iconColor = color
+    else
+        worldInteraction.iconColor = nil
+    end
+
+    local controller = worldInteraction.pinController
+    if controller and ref.IsDefined(controller) and controller.iconWidget then
+        if useColor then
+            controller.iconWidget:SetTintColor(HDRColor.new(color))
+        else
+            controller.iconWidget:SetTintColor(HDRColor.new(getDefaultIconColor())) -- Binding does not work if SetTintColor() was already used
+        end
+    else
+        worldInteraction.pinController = nil
+    end
+end
+
+function interactionUI.drawIconColor()
+    style.mutedText("Icon Color:")
+    ImGui.SameLine()
+    ImGui.SetCursorPosX(interactionUI.maxBasePropertyWidth)
+
+    local color = interactionUI.interaction.worldIconColor
+    style.setNextItemWidth(150)
+    local edited, changed = ImGui.ColorEdit3("##worldIconColor", { color.Red, color.Green, color.Blue }, ImGuiColorEditFlags.NoInputs + ImGuiColorEditFlags.HDR + ImGuiColorEditFlags.Float)
+    if changed then
+        interactionUI.setIconColor({ Red = edited[1], Green = edited[2], Blue = edited[3], Alpha = 1.0 }, true)
+    end
+
+    if not interactionUI.interaction.useWorldIconColor then return end
+
+    ImGui.SameLine()
+    if style.buttonNoBG(IconGlyphs.Reload) then
+        interactionUI.setIconColor(getDefaultIconColor(), false)
+    end
+    style.tooltip("Reset to the default icon color")
+end
+
 function interactionUI.drawBaseOptions()
     if not interactionUI.maxBasePropertyWidth then
-        interactionUI.maxBasePropertyWidth = utils.getTextMaxWidth({ "Name", "Icon Position", "Icon Visibility Range", "Interaction Range", "Interaction Angle" }) + 4 * ImGui.GetStyle().ItemSpacing.x
+        interactionUI.maxBasePropertyWidth = utils.getTextMaxWidth({ "Name", "Icon Position", "Icon Visibility Range", "Icon Color", "Interaction Range", "Interaction Angle" }) + 4 * ImGui.GetStyle().ItemSpacing.x
     end
 
     style.mutedText("Name:")
@@ -171,6 +225,8 @@ function interactionUI.drawBaseOptions()
         world.interactions[interactionUI.interaction.worldInteractionID].iconRange = interactionUI.interaction.worldIconRange ^ 2
         interactionUI.project:save()
     end
+
+    interactionUI.drawIconColor()
 
     style.mutedText("Interaction Range:")
     ImGui.SameLine()

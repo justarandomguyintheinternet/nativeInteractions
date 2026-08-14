@@ -16,6 +16,8 @@ local Cron = require("modules/utils/Cron")
 ---@field name string
 ---@field worldIcon string
 ---@field worldIconRange number
+---@field worldIconColor { Red: number, Green: number, Blue: number, Alpha: number }
+---@field useWorldIconColor boolean
 ---@field interactionAngle number
 ---@field interactionRange number
 ---@field editorIcon string
@@ -40,6 +42,8 @@ function interaction:new(mod, project)
     o.name = "Default Interaction"
     o.worldIcon = "ChoiceIcons.SitIcon"
     o.worldIconRange = 5
+    o.worldIconColor = { Red = 0.15829999744892, Green = 1.3033000230789, Blue = 1.4141999483109, Alpha = 1.0 }
+    o.useWorldIconColor = false
     o.interactionAngle = 80
     o.interactionRange = 1.5
     o.editorIcon = IconGlyphs.RobotConfusedOutline
@@ -65,7 +69,7 @@ function interaction:load(data)
         self.choiceUniqueID = math.random(0, 4294967295 - 100000) -- 100k nodeIDs for base nodes
     end
 
-    self.worldInteractionID = world.addInteraction(self.modulePath, ToVector4(self.worldIconPosition), self.interactionRange, self.interactionAngle, self.worldIcon, self.worldIconRange, nil, function (state)
+    self.worldInteractionID = world.addInteraction(self.modulePath, ToVector4(self.worldIconPosition), self.interactionRange, self.interactionAngle, self.worldIcon, self.worldIconRange, self.useWorldIconColor and self.worldIconColor or nil, function (state)
         if state then
             self:start()
         else
@@ -148,6 +152,8 @@ function interaction:save()
     data.interactionRange = self.interactionRange
     data.worldIconPosition = utils.deepcopy(self.worldIconPosition)
     data.choiceUniqueID = self.choiceUniqueID
+    data.worldIconColor = utils.deepcopy(self.worldIconColor)
+    data.useWorldIconColor = self.useWorldIconColor
 
     return data
 end

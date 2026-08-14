@@ -1,4 +1,5 @@
 local utils = require("modules/utils/utils")
+local ref = require("modules/utils/Ref")
 
 local roundRobin = 0
 local cellSize = 12
@@ -26,6 +27,7 @@ function world.addInteraction(modulePath, position, interactionRange, angle, ico
         angle = angle,
         callback = callback,
         pinID = nil,
+        pinController = nil,
         shown = false,
         disabled = false
     }
@@ -113,7 +115,13 @@ function world.init()
                 local record = TweakDBInterface.GetUIIconRecord(interaction.icon)
                 this.iconWidget:SetAtlasResource(record:AtlasResourcePath())
                 this.iconWidget:SetTexturePart(record:AtlasPartName())
-                this.iconWidget:SetTintColor(interaction.iconColor or HDRColor.new({ Red = 0.15829999744892, Green = 1.3033000230789, Blue = 1.4141999483109, Alpha = 1.0 }))
+
+                if interaction.iconColor then
+                    this.iconWidget:SetTintColor(HDRColor.new(interaction.iconColor))
+                else
+                    this.iconWidget.widget:BindProperty("tintColor", "MainColors.Blue")
+                end
+                interaction.pinController = ref.Weak(this)
                 return
             end
         end
@@ -237,6 +245,7 @@ function world.togglePin(interaction, state)
     if not state and interaction.pinID then
         Game.GetMappinSystem():UnregisterMappin(interaction.pinID)
         interaction.pinID = nil
+        interaction.pinController = nil
     elseif not interaction.pinID and state then
         local data = MappinData.new({ mappinType = 'Mappins.DefaultStaticMappin', variant = gamedataMappinVariant.UseVariant, visibleThroughWalls = false })
         interaction.pinID = Game.GetMappinSystem():RegisterMappin(data, interaction.pos)
@@ -273,6 +282,7 @@ function world.onSessionStart() -- Save loaded, all pins are gone
     for _, interaction in pairs(world.interactions) do
         interaction.shown = false
         interaction.pinID = nil
+        interaction.pinController = nil
     end
 end
 

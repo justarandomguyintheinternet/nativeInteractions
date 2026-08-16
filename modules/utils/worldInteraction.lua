@@ -231,7 +231,7 @@ end
 
 --Fix to make sure all icons are visible, to fix bug where after a scene some would be missing
 function world.forceIcons()
-    for _, interaction in pairs(world.interactions) do
+    for _, interaction in pairs(world.pinnedInteractions) do
         if interaction.pinID then
             Game.GetMappinSystem():UnregisterMappin(interaction.pinID)
             local data = MappinData.new({ mappinType = 'Mappins.DefaultStaticMappin', variant = gamedataMappinVariant.UseVariant, visibleThroughWalls = false })

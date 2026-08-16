@@ -49,16 +49,19 @@ end
 function interactionUI.setCameraExternal(state)
     interactionUI.cameraExternal = state
 
+    local camera = Game.GetPlayer():GetFPPCameraComponent()
+    if not camera then return end
+
     if state then
-        Game.GetPlayer():GetFPPCameraComponent():SetLocalPosition(Vector4.new(0, -2, 0, 0))
-        Game.GetPlayer():GetFPPCameraComponent():SetLocalOrientation(Quaternion.new(0, 0, 0, 1))
-        Game.GetPlayer():GetFPPCameraComponent().pitchMax = 89
-        Game.GetPlayer():GetFPPCameraComponent().pitchMin = -89
-        Game.GetPlayer():GetFPPCameraComponent().yawMaxRight = -360
-        Game.GetPlayer():GetFPPCameraComponent().yawMaxLeft = 360
+        camera:SetLocalPosition(Vector4.new(0, -2, 0, 0))
+        camera:SetLocalOrientation(Quaternion.new(0, 0, 0, 1))
+        camera.pitchMax = 89
+        camera.pitchMin = -89
+        camera.yawMaxRight = -360
+        camera.yawMaxLeft = 360
     else
-        Game.GetPlayer():GetFPPCameraComponent():SetLocalPosition(Vector4.new(0, 0, 0, 0))
-        Game.GetPlayer():GetFPPCameraComponent():SetLocalOrientation(Quaternion.new(0, 0, 0, 1))
+        camera:SetLocalPosition(Vector4.new(0, 0, 0, 0))
+        camera:SetLocalOrientation(Quaternion.new(0, 0, 0, 1))
     end
 end
 

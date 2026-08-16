@@ -55,6 +55,7 @@ function helper.init()
 
     Observe('NativeInteractions', 'ProcessScene', function(_, event)
         local path = ResRef.FromHash(event:GetPath():GetHash()):ToString()
+
         if not helper.patches[path] then return end
 
         local scene = event:GetResource()

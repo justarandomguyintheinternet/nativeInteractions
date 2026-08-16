@@ -54,6 +54,7 @@ function apartment:new(mod, project)
     o.interactionAngle = 80
     o.interactionRange = 1.5
     o.editorIcon = IconGlyphs.Home
+    o.needsUpdate = true
 
     o.maxBasePropertyWidth = nil
     o.maxTerminalPropertyWidth = nil

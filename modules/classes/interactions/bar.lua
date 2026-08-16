@@ -32,6 +32,7 @@ function bar:new(mod, project)
     o.interactionAngle = 80
     o.interactionRange = 1.5
     o.editorIcon = IconGlyphs.Liquor
+    o.needsUpdate = true
 
     o.maxNodeRefPropertyWidth = nil
     o.maxActionPropertyWidth = nil

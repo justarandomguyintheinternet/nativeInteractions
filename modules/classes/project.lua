@@ -1,6 +1,7 @@
 local config = require("modules/utils/config")
 local utils = require("modules/utils/utils")
 local world = require("modules/utils/worldInteraction")
+local manager = require("modules/projectsManager")
 
 ---Class for keeping project data
 ---@class project
@@ -50,6 +51,7 @@ function project:addInteraction(interaction, name)
         return a.modulePath < b.modulePath
     end)
 
+    manager.rebuildUpdateList()
     self:save()
 end
 
@@ -57,6 +59,7 @@ end
 function project:removeInteraction(interaction)
     interaction:remove()
     utils.removeItem(self.interactions, interaction)
+    manager.rebuildUpdateList()
     self:save()
 end
 
@@ -72,18 +75,11 @@ function project:sessionEnd()
     end
 end
 
-function project:onUpdate(playerPosition)
-    if not self.enabled then return end
-
-    for _, interaction in pairs(self.interactions) do
-        interaction:onUpdate(playerPosition)
-    end
-end
-
 function project:enable()
     if self.enabled then return end
 
     self.enabled = true
+    manager.rebuildUpdateList()
 
     for _, interaction in pairs(self.interactions) do
         world.disableInteraction(interaction.worldInteractionID, false)
@@ -95,6 +91,7 @@ function project:disable()
     if not self.enabled then return end
 
     self.enabled = false
+    manager.rebuildUpdateList()
 
     for _, interaction in pairs(self.interactions) do
         -- The editor UI stops drawing a disabled project, so end any ongoing edit instead of leaking its preview entity

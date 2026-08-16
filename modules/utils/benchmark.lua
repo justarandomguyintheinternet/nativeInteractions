@@ -18,4 +18,15 @@ function bench.stopTimer(id)
     end
 end
 
+-- q = Game.GetQuestsSystem()
+-- total = 0
+-- for i = 1, 25 do
+--     time = os.clock()
+--     for i = 1, 10000 do
+--         local x = q:GetFactStr("nif_eat_level")
+--     end
+--     total = total + (os.clock() - time)
+-- end
+-- print("GetFactStr took " .. (total / 25) .. " seconds")
+
 return bench

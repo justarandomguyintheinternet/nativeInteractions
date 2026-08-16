@@ -3,9 +3,11 @@ local utils = require("modules/utils/utils")
 
 ---@class manager
 ---@field projects project[]
+---@field updateList interaction[]
 ---@field mod mod?
 local manager = {
     projects = {},
+    updateList = {},
     mod = nil
 }
 
@@ -19,13 +21,36 @@ function manager.init(mod)
             table.insert(manager.projects, entry)
         end
     end
+
+    manager.rebuildUpdateList()
+end
+
+---Rebuilds the list of interactions on which onUpdate is called
+function manager.rebuildUpdateList()
+    local list = {}
+
+    for _, project in pairs(manager.projects) do
+        if project.enabled then
+            for _, interaction in pairs(project.interactions) do
+                if interaction.needsUpdate then
+                    table.insert(list, interaction)
+                end
+            end
+        end
+    end
+
+    manager.updateList = list
 end
 
 function manager.update()
+    local list = manager.updateList
+    local nUpdates = #list
+    if nUpdates == 0 then return end
+
     local playerPosition = GetPlayer():GetWorldPosition()
 
-    for _, project in pairs(manager.projects) do
-        project:onUpdate(playerPosition)
+    for i = 1, nUpdates do
+        list[i]:onUpdate(playerPosition)
     end
 end
 
@@ -73,6 +98,7 @@ end
 
 function manager.addProject(project)
     table.insert(manager.projects, project)
+    manager.rebuildUpdateList()
 end
 
 ---@param data project
@@ -81,6 +107,7 @@ function manager.removeProject(data)
         interaction:remove()
     end
     utils.removeItem(manager.projects, data)
+    manager.rebuildUpdateList()
 end
 
 function manager.shutdown()
@@ -89,6 +116,8 @@ function manager.shutdown()
             interaction:remove()
         end
     end
+
+    manager.updateList = {}
 end
 
 return manager

@@ -46,6 +46,15 @@ function couch:load(data)
     CName.add("nif_sit_type")
 end
 
+function couch:start()
+    workspot.start(self)
+
+    if self.sceneRunning then
+        Game.GetQuestsSystem():SetFactStr("nif_couch_enable_tv_controls", self.enableTVControls and 1 or 0)
+        Game.GetQuestsSystem():SetFactStr("nif_couch_sit_type", self.sitType)
+    end
+end
+
 function couch:getPatchData()
     local data = workspot.getPatchData(self)
 
@@ -54,13 +63,6 @@ function couch:getPatchData()
     }
 
     return data
-end
-
-function couch:onUpdate()
-    if self.sceneRunning then
-        Game.GetQuestsSystem():SetFactStr("nif_tv_controls", self.enableTVControls and 1 or 0)
-        Game.GetQuestsSystem():SetFactStr("nif_sit_type", self.sitType)
-    end
 end
 
 function couch:draw()
@@ -86,7 +88,12 @@ function couch:draw()
     ImGui.SameLine()
     ImGui.SetCursorPosX(self.maxActionPropertyWidth)
     self.enableTVControls, changed = ImGui.Checkbox('##enableTVControls', self.enableTVControls)
-    if changed then self.project:save() end
+    if changed then
+        self.project:save()
+        if self.sceneRunning then
+            Game.GetQuestsSystem():SetFactStr("nif_tv_controls", self.enableTVControls and 1 or 0)
+        end
+    end
 
     style.sectionHeaderEnd()
 

@@ -21,6 +21,7 @@ local Cron = require("modules/utils/Cron")
 ---@field interactionAngle number
 ---@field interactionRange number
 ---@field editorIcon string
+---@field needsUpdate boolean -- Determines if onUpdate is ran
 ---@field sceneRunning boolean
 ---@field worldInteractionID number?
 ---@field worldIconPosition {x: number, y: number, z: number}?
@@ -48,6 +49,7 @@ function interaction:new(mod, project)
     o.interactionRange = 1.5
     o.editorIcon = IconGlyphs.RobotConfusedOutline
 
+    o.needsUpdate = false
     o.sceneRunning = false
     o.worldInteractionID = nil
 

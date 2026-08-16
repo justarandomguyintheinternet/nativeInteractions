@@ -30,6 +30,7 @@ function iguana:new(mod, project)
     o.interactionAngle = 80
     o.interactionRange = 1.5
     o.editorIcon = IconGlyphs.Tortoise
+    o.needsUpdate = true
 
     o.maxNodeRefPropertyWidth = nil
     o.iguanaRef = ""

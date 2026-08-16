@@ -60,7 +60,7 @@ function coffee:draw()
     ImGui.SetCursorPosX(self.maxNodeRefPropertyWidth)
     style.setNextItemWidth(300)
     self.coffeeMugRef, changed = ImGui.InputTextWithHint('##coffeeMugRef', '$/mod/#coffee_mug', self.coffeeMugRef, 250)
-    if changed then self.project:save() end
+    if ImGui.IsItemDeactivatedAfterEdit() then self.project:save() end
     ImGui.SameLine()
     style.drawNodeRefInfo(self.coffeeMugRef, true)
 
@@ -69,7 +69,7 @@ function coffee:draw()
     ImGui.SetCursorPosX(self.maxNodeRefPropertyWidth)
     style.setNextItemWidth(300)
     self.coffeeMachineRef, changed = ImGui.InputTextWithHint('##coffeeMachineRef', '$/mod/#coffee_machine', self.coffeeMachineRef, 250)
-    if changed then self.project:save() end
+    if ImGui.IsItemDeactivatedAfterEdit() then self.project:save() end
     ImGui.SameLine()
     style.drawNodeRefInfo(self.coffeeMachineRef, true)
 

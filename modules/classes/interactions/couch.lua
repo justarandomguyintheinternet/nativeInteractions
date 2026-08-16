@@ -47,12 +47,12 @@ function couch:load(data)
 end
 
 function couch:start()
-    workspot.start(self)
-
-    if self.sceneRunning then
+    if not self.sceneRunning then
         Game.GetQuestsSystem():SetFactStr("nif_couch_enable_tv_controls", self.enableTVControls and 1 or 0)
         Game.GetQuestsSystem():SetFactStr("nif_couch_sit_type", self.sitType)
     end
+
+    workspot.start(self)
 end
 
 function couch:getPatchData()
@@ -110,7 +110,7 @@ function couch:draw()
     ImGui.SetCursorPosX(self.maxNodeRefPropertyWidth)
     style.setNextItemWidth(300)
     self.tvRef, changed = ImGui.InputTextWithHint('##tvRef', '$/mod/#tv', self.tvRef, 250)
-    if changed then self.project:save() end
+    if ImGui.IsItemDeactivatedAfterEdit() then self.project:save() end
     ImGui.SameLine()
     style.drawNodeRefInfo(self.tvRef, true)
 

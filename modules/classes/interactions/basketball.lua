@@ -84,7 +84,7 @@ function basketball:draw()
     ImGui.SetCursorPosX(self.maxNodeRefPropertyWidth)
     style.setNextItemWidth(300)
     self.basketballRef, changed = ImGui.InputTextWithHint('##basketballRef', '$/mod/#basketball', self.basketballRef, 250)
-    if changed then self.project:save() end
+    if ImGui.IsItemDeactivatedAfterEdit() then self.project:save() end
     ImGui.SameLine()
     style.drawNodeRefInfo(self.basketballRef, true)
 

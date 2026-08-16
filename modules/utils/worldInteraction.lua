@@ -73,7 +73,6 @@ function world.getGridInteractions(origin, singleCell, roundRobin)
     local singleCell = singleCell == nil and false or singleCell
     local originX = math.floor(origin.x / cellSize)
     local originY = math.floor(origin.y / cellSize)
-    local interactions = {}
 
     if singleCell then
         local key = originX .. "_" .. originY
@@ -87,14 +86,7 @@ function world.getGridInteractions(origin, singleCell, roundRobin)
         return world.searchGrid[key] or {}
     end
 
-    for x = -1, 1 do
-        for y = -1, 1 do
-            local key = (originX + x) .. "_" .. (originY + y)
-            utils.combine(interactions, world.searchGrid[key] or {})
-        end
-    end
-
-    return interactions
+    return {}
 end
 
 function world.disableInteraction(key, state)

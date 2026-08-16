@@ -57,7 +57,7 @@ function guitar:draw()
     ImGui.SetCursorPosX(self.maxNodeRefPropertyWidth)
     style.setNextItemWidth(300)
     self.guitarRef, changed = ImGui.InputTextWithHint('##guitarRef', '$/mod/#guitar', self.guitarRef, 250)
-    if changed then self.project:save() end
+    if ImGui.IsItemDeactivatedAfterEdit() then self.project:save() end
     ImGui.SameLine()
     style.drawNodeRefInfo(self.guitarRef, true)
 

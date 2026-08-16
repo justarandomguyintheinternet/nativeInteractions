@@ -68,7 +68,7 @@ function teleport:draw()
     ImGui.SetCursorPosX(self.maxNodeRefPropertyWidth)
     style.setNextItemWidth(300)
     self.targetRef, changed = ImGui.InputTextWithHint('##targetRef', '$/mod/#target', self.targetRef, 250)
-    if changed then self.project:save() end
+    if ImGui.IsItemDeactivatedAfterEdit() then self.project:save() end
     ImGui.SameLine()
     style.tooltip("NodeRef of a node who will be used as the destination of the teleport.\nThe node MUST be already streamed in when at the teleport interaction.")
     style.drawNodeRefInfo(self.targetRef, false)
@@ -78,7 +78,7 @@ function teleport:draw()
     ImGui.SetCursorPosX(self.maxNodeRefPropertyWidth)
     style.setNextItemWidth(300)
     self.locStringIDOverride, changed = ImGui.InputTextWithHint('##locStringIDOverride', '', self.locStringIDOverride, 250)
-    if changed then self.project:save() end
+    if ImGui.IsItemDeactivatedAfterEdit() then self.project:save() end
     ImGui.SameLine()
     style.drawHelp("Override LocStringID for the interaction prompt. Is NOT a LocKey, use SoundDB to find a fitting replacement.", "https://sounddb.redmodding.org/subtitles")
 

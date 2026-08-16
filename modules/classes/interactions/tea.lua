@@ -60,7 +60,7 @@ function tea:draw()
     ImGui.SetCursorPosX(self.maxNodeRefPropertyWidth)
     style.setNextItemWidth(300)
     self.teapotRef, changed = ImGui.InputTextWithHint('##teapot', '$/mod/#teapot', self.teapotRef, 250)
-    if changed then self.project:save() end
+    if ImGui.IsItemDeactivatedAfterEdit() then self.project:save() end
     ImGui.SameLine()
     style.drawNodeRefInfo(self.teapotRef, true)
 
@@ -69,7 +69,7 @@ function tea:draw()
     ImGui.SetCursorPosX(self.maxNodeRefPropertyWidth)
     style.setNextItemWidth(300)
     self.teacupRef, changed = ImGui.InputTextWithHint('##teacup', '$/mod/#teacup', self.teacupRef, 250)
-    if changed then self.project:save() end
+    if ImGui.IsItemDeactivatedAfterEdit() then self.project:save() end
     ImGui.SameLine()
     style.drawNodeRefInfo(self.teacupRef, true)
 

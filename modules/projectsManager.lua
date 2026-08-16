@@ -42,12 +42,17 @@ function manager.rebuildUpdateList()
     manager.updateList = list
 end
 
+local playerPosition = { x = 0, y = 0, z = 0 }
+
 function manager.update()
     local list = manager.updateList
     local nUpdates = #list
     if nUpdates == 0 then return end
 
-    local playerPosition = GetPlayer():GetWorldPosition()
+    local position = GetPlayer():GetWorldPosition()
+    playerPosition.x = position.x
+    playerPosition.y = position.y
+    playerPosition.z = position.z
 
     for i = 1, nUpdates do
         list[i]:onUpdate(playerPosition)

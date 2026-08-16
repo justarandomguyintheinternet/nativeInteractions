@@ -407,12 +407,14 @@ function apartment:drawBase()
     ImGui.SetCursorPosX(self.maxBasePropertyWidth)
     style.setNextItemWidth(250)
     self.apartmentName, changed = ImGui.InputTextWithHint('##apartmentName', 'LocKey#123', self.apartmentName, 250)
-    if changed then self.project:save() end
-    if ImGui.IsItemDeactivatedAfterEdit() and self:getKeyTDBID() ~= "" then
-        self:removeKey()
-        self:removeOffer()
-        self:addKey()
-        self:addOffer()
+    if ImGui.IsItemDeactivatedAfterEdit() then
+        if self:getKeyTDBID() ~= "" then
+            self:removeKey()
+            self:removeOffer()
+            self:addKey()
+            self:addOffer()
+        end
+
         self.project:save()
     end
     ImGui.SameLine()
@@ -449,7 +451,7 @@ function apartment:drawBase()
     if self.useCustomKey then
         style.setNextItemWidth(250)
         self.apartmentKeyTDBID, changed = ImGui.InputTextWithHint('##apartmentKeyTDBID', 'Keycards.apartment_key', self.apartmentKeyTDBID, 250)
-        if changed then self.project:save() end
+        if ImGui.IsItemDeactivatedAfterEdit() then self.project:save() end
     else
         ImGui.Text("Keycards." .. (self.purchasedFact ~= "" and self.purchasedFact or "MISSING"))
 
@@ -466,7 +468,7 @@ function apartment:drawBase()
     ImGui.SetCursorPosX(self.maxBasePropertyWidth)
     style.setNextItemWidth(250)
     self.enablePurchaseFact, changed = ImGui.InputTextWithHint('##enablePurchaseFact', 'apartment_purchase_enabled', self.enablePurchaseFact, 250)
-    if changed then self.project:save() end
+    if ImGui.IsItemDeactivatedAfterEdit() then self.project:save() end
     style.tooltip("Optional fact that controls whether the purchase interaction and mappin is enabled.")
 
     style.sectionHeaderEnd(true)
@@ -500,13 +502,15 @@ function apartment:drawPurchaseTerminal()
     ImGui.SetCursorPosX(self.maxTerminalPropertyWidth)
     style.setNextItemWidth(250)
     local ref, changed = ImGui.InputTextWithHint('##terminalRef', '$/mod/#apartment_terminal', self.isTablet and self.tabletRef or self.terminalRef, 250)
+    local finished = ImGui.IsItemDeactivatedAfterEdit()
     if changed then
         if self.isTablet then
             self.tabletRef = ref
         else
             self.terminalRef = ref
         end
-
+    end
+    if finished then
         self.project:save()
     end
     style.tooltip("NodeRef of the purchase terminal/scanner that will be used for this apartment.")
@@ -586,7 +590,7 @@ function apartment:drawMedia()
         ImGui.SetCursorPosX(self.maxOptionalPropertyWidth)
         style.setNextItemWidth(250)
         self.apartmentPictureAtlas, changed = ImGui.InputTextWithHint('##apartmentPictureAtlas', 'base\\apartment\\images.inkatlas', self.apartmentPictureAtlas, 250)
-        if changed then
+        if ImGui.IsItemDeactivatedAfterEdit() then
             self.project:save()
             self:removeIcon()
             self:addIcon()
@@ -599,7 +603,7 @@ function apartment:drawMedia()
         ImGui.SetCursorPosX(self.maxOptionalPropertyWidth)
         style.setNextItemWidth(150)
         self.apartmentPicturePart, changed = ImGui.InputTextWithHint('##apartmentPicturePart', 'part_name', self.apartmentPicturePart, 50)
-        if changed then
+        if ImGui.IsItemDeactivatedAfterEdit() then
             self.project:save()
             self:removeIcon()
             self:addIcon()
@@ -612,7 +616,7 @@ function apartment:drawMedia()
         ImGui.SetCursorPosX(self.maxOptionalPropertyWidth)
         style.setNextItemWidth(250)
         self.apartmentPictureRecord, changed = ImGui.InputTextWithHint('##apartmentPictureRecord', 'UIJournalIcons.l_costview', self.apartmentPictureRecord, 250)
-        if changed then self.project:save() end
+        if ImGui.IsItemDeactivatedAfterEdit() then self.project:save() end
         reloadJournalOnEdit()
         style.tooltip("TweakDBID of the icon record that will be used for the apartment picture.")
     end
@@ -672,7 +676,7 @@ function apartment:drawTutorial()
         ImGui.SetCursorPosX(self.maxTutorialPropertyWidth)
         style.setNextItemWidth(250)
         self.apartmentVideo, changed = ImGui.InputTextWithHint('##apartmentVideo', 'base\\apartment\\intro.bk2', self.apartmentVideo, 250)
-        if changed then self.project:save() end
+        if ImGui.IsItemDeactivatedAfterEdit() then self.project:save() end
         style.tooltip("Path to the video that will be played when the apartment is entered for the first time.")
 
         style.mutedText("Video Message:")
@@ -680,7 +684,7 @@ function apartment:drawTutorial()
         ImGui.SetCursorPosX(self.maxTutorialPropertyWidth)
         style.setNextItemWidth(250)
         self.tutorialLocKey, changed = ImGui.InputTextWithHint('##tutorialLocKey', 'LocKey#88888', self.tutorialLocKey, 250)
-        if changed then self.project:save() end
+        if ImGui.IsItemDeactivatedAfterEdit() then self.project:save() end
         style.tooltip("LocKey for the text which will be displayed together with the tutorial video.")
 
         style.mutedText("Entrance Position:")

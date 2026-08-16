@@ -136,6 +136,7 @@ function interactionUI.drawYaw(yaw, key)
     if style.buttonNoBG(IconGlyphs.AccountArrowLeftOutline) then
         yaw = GetPlayer():GetWorldOrientation():ToEulerAngles().yaw
         changed = true
+        finished = true
     end
     style.tooltip("Set to player rotation")
 
@@ -198,6 +199,8 @@ function interactionUI.drawBaseOptions()
         interactionUI.maxBasePropertyWidth = utils.getTextMaxWidth({ "Name", "Icon Position", "Icon Visibility Range", "Icon Color", "Interaction Range", "Interaction Angle" }) + 4 * ImGui.GetStyle().ItemSpacing.x
     end
 
+    local changed, finished
+
     style.mutedText("Name:")
     ImGui.SameLine()
     ImGui.SetCursorPosX(interactionUI.maxBasePropertyWidth)
@@ -209,9 +212,11 @@ function interactionUI.drawBaseOptions()
     style.mutedText("Icon Position:")
     ImGui.SameLine()
     ImGui.SetCursorPosX(interactionUI.maxBasePropertyWidth)
-    interactionUI.interaction.worldIconPosition, changed, _ = interactionUI.drawPosition(interactionUI.interaction.worldIconPosition, "icon")
+    interactionUI.interaction.worldIconPosition, changed, finished = interactionUI.drawPosition(interactionUI.interaction.worldIconPosition, "icon")
     if changed then
         world.updateInteractionPosition(interactionUI.interaction.worldInteractionID, ToVector4(interactionUI.interaction.worldIconPosition))
+    end
+    if finished then
         interactionUI.project:save()
     end
 
@@ -220,9 +225,12 @@ function interactionUI.drawBaseOptions()
     ImGui.SetCursorPosX(interactionUI.maxBasePropertyWidth)
     style.setNextItemWidth(80)
     interactionUI.interaction.worldIconRange, changed = ImGui.DragFloat("##worldIconRange", interactionUI.interaction.worldIconRange, 0.01, 0.1, world.cellSize, "%.2f", ImGuiSliderFlags.NoRoundToFormat)
+    finished = ImGui.IsItemDeactivatedAfterEdit()
     if changed then
         interactionUI.interaction.worldIconRange = utils.clamp(interactionUI.interaction.worldIconRange, 0.1, world.cellSize)
         world.interactions[interactionUI.interaction.worldInteractionID].iconRange = interactionUI.interaction.worldIconRange ^ 2
+    end
+    if finished then
         interactionUI.project:save()
     end
 
@@ -233,9 +241,12 @@ function interactionUI.drawBaseOptions()
     ImGui.SetCursorPosX(interactionUI.maxBasePropertyWidth)
     style.setNextItemWidth(80)
     interactionUI.interaction.interactionRange, changed = ImGui.DragFloat("##interactionRange", interactionUI.interaction.interactionRange, 0.01, 0.1, world.cellSize, "%.2f", ImGuiSliderFlags.NoRoundToFormat)
+    finished = ImGui.IsItemDeactivatedAfterEdit()
     if changed then
         interactionUI.interaction.interactionRange = utils.clamp(interactionUI.interaction.interactionRange, 0.1, world.cellSize)
         world.interactions[interactionUI.interaction.worldInteractionID].interactionRange = interactionUI.interaction.interactionRange ^ 2
+    end
+    if finished then
         interactionUI.project:save()
     end
 
@@ -244,8 +255,11 @@ function interactionUI.drawBaseOptions()
     ImGui.SetCursorPosX(interactionUI.maxBasePropertyWidth)
     style.setNextItemWidth(80)
     interactionUI.interaction.interactionAngle, changed = ImGui.DragFloat("##interactionAngle", interactionUI.interaction.interactionAngle, 0.01, 0.1, 100, "%.2f", ImGuiSliderFlags.NoRoundToFormat)
+    finished = ImGui.IsItemDeactivatedAfterEdit()
     if changed then
         world.interactions[interactionUI.interaction.worldInteractionID].angle = interactionUI.interaction.interactionAngle
+    end
+    if finished then
         interactionUI.project:save()
     end
 end

@@ -111,10 +111,13 @@ function workspot:draw(pendingText)
     self.workspotPosition, changed, finished = self.mod.baseUI.interactionUI.drawPosition(self.workspotPosition, "position")
     if changed then
         self:updatePreview()
-        self.project:save()
     end
-    if finished and self.sceneRunning then
-        self.workspotPositionPending = true
+    if finished then
+        self.project:save()
+
+        if self.sceneRunning then
+            self.workspotPositionPending = true
+        end
     end
     if self.workspotPositionPending then
         ImGui.SameLine()
@@ -128,10 +131,13 @@ function workspot:draw(pendingText)
     self.workspotRotation.yaw, changed, finished = self.mod.baseUI.interactionUI.drawYaw(self.workspotRotation.yaw, "orientation")
     if changed then
         self:updatePreview()
-        self.project:save()
     end
-    if finished and self.sceneRunning then
-        self.workspotRotationPending = true
+    if finished then
+        self.project:save()
+
+        if self.sceneRunning then
+            self.workspotRotationPending = true
+        end
     end
     if self.workspotRotationPending then
         ImGui.SameLine()

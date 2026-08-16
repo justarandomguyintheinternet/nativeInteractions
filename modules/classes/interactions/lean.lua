@@ -40,11 +40,11 @@ function lean:load(data)
 end
 
 function lean:start()
-    workspot.start(self)
-
-    if self.sceneRunning then
+    if not self.sceneRunning then
         Game.GetQuestsSystem():SetFactStr("nif_lean_enable_smoke", self.enableSmoke and 1 or 0)
     end
+
+    workspot.start(self)
 end
 
 function lean:draw()

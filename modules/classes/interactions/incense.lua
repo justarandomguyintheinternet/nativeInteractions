@@ -134,8 +134,8 @@ function incense:draw()
     ImGui.SetCursorPosX(self.maxNodeRefPropertyWidth)
     style.setNextItemWidth(300)
     self.incenseRef, changed = ImGui.InputTextWithHint('##incenseRef', '$/mod/#incense_stick', self.incenseRef, 250)
-    if changed then self.project:save() end
     if ImGui.IsItemDeactivatedAfterEdit() then
+        self.project:save()
         self:reset()
     end
     ImGui.SameLine()
@@ -146,7 +146,7 @@ function incense:draw()
     ImGui.SetCursorPosX(self.maxNodeRefPropertyWidth)
     style.setNextItemWidth(80)
     self.resetDistance, changed = ImGui.DragFloat("##resetDistance", self.resetDistance, 0.01, 1, 50, "%.2f", ImGuiSliderFlags.NoRoundToFormat)
-    if changed then self.project:save() end
+    if ImGui.IsItemDeactivatedAfterEdit() then self.project:save() end
     style.tooltip("Distance from the interaction icon where the incense stick will reset.")
     ImGui.SameLine()
     if ImGui.Button("Reset") then

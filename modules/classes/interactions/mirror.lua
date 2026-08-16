@@ -68,8 +68,8 @@ function mirror:draw()
     ImGui.SetCursorPosX(self.maxNodeRefPropertyWidth)
     style.setNextItemWidth(300)
     self.mirrorDeviceRef, changed = ImGui.InputTextWithHint('##mirrorDeviceRef', '$/mod/#mirror_device', self.mirrorDeviceRef, 250)
+    if ImGui.IsItemDeactivatedAfterEdit() then self.project:save() end
     style.tooltip("Mirror device which handles the visual activation effect, and off state.")
-    if changed then self.project:save() end
     ImGui.SameLine()
     style.drawNodeRefInfo(self.mirrorDeviceRef, true)
 
@@ -78,8 +78,8 @@ function mirror:draw()
     ImGui.SetCursorPosX(self.maxNodeRefPropertyWidth)
     style.setNextItemWidth(300)
     self.mirrorMeshRef, changed = ImGui.InputTextWithHint('##mirrorMeshRef', '$/mod/#mirror_mesh', self.mirrorMeshRef, 250)
+    if ImGui.IsItemDeactivatedAfterEdit() then self.project:save() end
     style.tooltip("Special mesh which renders the mirror reflection.")
-    if changed then self.project:save() end
     ImGui.SameLine()
     style.drawNodeRefInfo(self.mirrorMeshRef, false)
 

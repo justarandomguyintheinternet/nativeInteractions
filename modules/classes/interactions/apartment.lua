@@ -35,6 +35,7 @@ local Cron = require("modules/utils/Cron")
 ---@field purchaseMappinID userdata
 ---@field apartmentMappinID userdata
 ---@field messageDelayCron number
+---@field purchaseJournalPath string
 local apartment = setmetatable({}, { __index = workspot })
 
 function apartment:new(mod, project)
@@ -90,6 +91,7 @@ function apartment:new(mod, project)
     o.purchaseMappinID = nil
     o.apartmentMappinID = nil
     o.messageDelayCron = nil
+    o.purchaseJournalPath = ""
 
     setmetatable(o, { __index = self })
    	return o
@@ -113,6 +115,7 @@ function apartment:load(data)
     self:addKey()
     self:addIcon()
     self:addOffer()
+    self:refreshMessageJournalPath()
 end
 
 function apartment:remove()
@@ -158,6 +161,10 @@ function apartment:getJournalPatch()
             }
         }
     }
+end
+
+function apartment:refreshMessageJournalPath()
+    self.purchaseJournalPath = 'contacts/muamar_el_capitan_reyes/apartments/' .. self.purchasedFact
 end
 
 function apartment:start()
@@ -210,7 +217,7 @@ function apartment:reset()
     Game.GetTransactionSystem():RemoveItem(GetPlayer(), ItemID.FromTDBID(self:getKeyTDBID()), 9999)
 
     Game.AddToInventory("Items.money", self.cost)
-    Game.GetJournalManager():ChangeEntryState('contacts/muamar_el_capitan_reyes/apartments/' .. self.purchasedFact, 'gameJournalPhoneMessage', gameJournalEntryState.Inactive, gameJournalNotifyOption.Notify)
+    Game.GetJournalManager():ChangeEntryState(self.purchaseJournalPath, 'gameJournalPhoneMessage', gameJournalEntryState.Inactive, gameJournalNotifyOption.Notify)
 
     self:refresh()
 end
@@ -257,9 +264,9 @@ end
 function apartment:canSendMessage(canPurchase)
     local journalManager = Game.GetJournalManager()
 
-    local inactive = journalManager:GetEntryState(journalManager:GetEntryByString('contacts/muamar_el_capitan_reyes/apartments/' .. self.purchasedFact, 'gameJournalPhoneMessage')) == gameJournalEntryState.Inactive
+    local inactive = journalManager:GetEntryState(journalManager:GetEntryByString(self.purchaseJournalPath, 'gameJournalPhoneMessage')) == gameJournalEntryState.Inactive
     if not inactive then return false end
-    local contactEnabled = journalManager:GetEntryState(journalManager:GetEntryByString('contacts/muamar_el_capitan_reyes/apartments', 'gameJournalPhoneConversation')) == gameJournalEntryState.Active
+    local contactEnabled = journalManager:GetEntryState(journalManager:GetEntryByString(self.purchaseJournalPath, 'gameJournalPhoneConversation')) == gameJournalEntryState.Active
     if not contactEnabled then return false end
     local canPurchase = canPurchase == nil and self:purchaseEnabled() or canPurchase
 
@@ -270,8 +277,8 @@ function apartment:sendMessage()
     if self.purchasedFact == "" then return end
 
     self.messageDelayCron = Cron.After(2.5, function ()
-        Game.GetJournalManager():ChangeEntryState('contacts/muamar_el_capitan_reyes/apartments/' .. self.purchasedFact, 'gameJournalPhoneMessage', gameJournalEntryState.Inactive, gameJournalNotifyOption.Notify)
-        Game.GetJournalManager():ChangeEntryState('contacts/muamar_el_capitan_reyes/apartments/' .. self.purchasedFact, 'gameJournalPhoneMessage', gameJournalEntryState.Active, gameJournalNotifyOption.Notify)
+        Game.GetJournalManager():ChangeEntryState(self.purchaseJournalPath, 'gameJournalPhoneMessage', gameJournalEntryState.Inactive, gameJournalNotifyOption.Notify)
+        Game.GetJournalManager():ChangeEntryState(self.purchaseJournalPath, 'gameJournalPhoneMessage', gameJournalEntryState.Active, gameJournalNotifyOption.Notify)
 
         self.messageDelayCron = nil
     end)
@@ -395,6 +402,7 @@ function apartment:drawBase()
         self:addKey()
         self:addIcon()
         self:addOffer()
+        self:refreshMessageJournalPath()
         -- Update mappins
         self:refresh()
         self.project:save()
@@ -642,7 +650,7 @@ function apartment:drawMedia()
     style.tooltip("Optional LocKey for a message that will be sent by El Capitan when the apartment can be purchased.")
     ImGui.SameLine()
     if style.buttonNoBG(IconGlyphs.Reload) then
-        Game.GetJournalManager():ChangeEntryState('contacts/muamar_el_capitan_reyes/apartments/' .. self.purchasedFact, 'gameJournalPhoneMessage', gameJournalEntryState.Inactive, gameJournalNotifyOption.Notify)
+        Game.GetJournalManager():ChangeEntryState(self.purchaseJournalPath, 'gameJournalPhoneMessage', gameJournalEntryState.Inactive, gameJournalNotifyOption.Notify)
     end
     style.tooltip("Deactivate message, so it can be sent again")
 

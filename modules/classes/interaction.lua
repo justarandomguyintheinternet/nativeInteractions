@@ -23,6 +23,7 @@ local Cron = require("modules/utils/Cron")
 ---@field editorIcon string
 ---@field needsUpdate boolean -- Determines if onUpdate is ran
 ---@field sceneRunning boolean
+---@field pendingStartTimer number?
 ---@field worldInteractionID number?
 ---@field worldIconPosition {x: number, y: number, z: number}?
 ---@field choiceUniqueID number
@@ -51,6 +52,7 @@ function interaction:new(mod, project)
 
     o.needsUpdate = false
     o.sceneRunning = false
+    o.pendingStartTimer = nil
     o.worldInteractionID = nil
 
     o.worldIconPosition = nil
@@ -90,7 +92,9 @@ function interaction:start()
     self.sceneRunning = true
 
     -- Delay this, so that if during the same tick another one stops, there is time for it to properly shutdown, before this one starts
-    Cron.AfterTicks(2, function ()
+    self.pendingStartTimer = Cron.AfterTicks(2, function ()
+        self.pendingStartTimer = nil
+
         local success = resourceHelper.registerSceneEnd(self.endEvent, function (sceneActive)
             utils.removeSaveLock()
             self.sceneRunning = false
@@ -117,7 +121,20 @@ function interaction:stop()
     if not self.sceneRunning then return end
 
     self.sceneRunning = false
+
+    -- cancle pending start
+    if self.pendingStartTimer then
+        Cron.Halt(self.pendingStartTimer)
+        self.pendingStartTimer = nil
+        return
+    end
+
     Game.GetQuestsSystem():SetFactStr(self.skipFact, 1)
+end
+
+function interaction:resetSceneState()
+    self.pendingStartTimer = nil
+    self.sceneRunning = false
 end
 
 function interaction:remove()

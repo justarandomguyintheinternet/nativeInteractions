@@ -117,7 +117,7 @@ function mod:new()
     registerForEvent("onShutdown", function ()
         world.shutdown()
         manager.shutdown()
-        utils.removeSaveLock(999)
+        SaveLocksManager.RequestSaveLockRemove("nif")
     end)
 
     registerForEvent("onOverlayOpen", function()

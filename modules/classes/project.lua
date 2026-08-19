@@ -65,6 +65,7 @@ end
 
 function project:sessionStart()
     for _, interaction in pairs(self.interactions) do
+        interaction:resetSceneState()
         interaction:sessionStart()
     end
 end

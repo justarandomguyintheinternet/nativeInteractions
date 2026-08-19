@@ -387,8 +387,8 @@ function miscUtils.addSaveLock()
     SaveLocksManager.RequestSaveLockAdd("nif")
 end
 
-function miscUtils.removeSaveLock(num)
-    miscUtils.saveLock = math.max(0, miscUtils.saveLock - (num or 1))
+function miscUtils.removeSaveLock()
+    miscUtils.saveLock = math.max(0, miscUtils.saveLock - 1)
 
     if miscUtils.saveLock == 0 then
         SaveLocksManager.RequestSaveLockRemove("nif")

@@ -95,6 +95,8 @@ function interaction:start()
     self.pendingStartTimer = Cron.AfterTicks(2, function ()
         self.pendingStartTimer = nil
 
+        if not self.sceneRunning then return end
+
         local success = resourceHelper.registerSceneEnd(self.endEvent, function (sceneActive)
             utils.removeSaveLock()
             self.sceneRunning = false

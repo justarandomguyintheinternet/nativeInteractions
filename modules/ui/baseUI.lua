@@ -1,6 +1,7 @@
-local CodewareVersion = "1.15.0"
-local ArchiveXLVersion = "1.22.0"
-local ModVersion = "1.1.3"
+local CodewareVersion = "1.21.0"
+local ArchiveXLVersion = "1.28.0"
+local ModVersion = "1.1.4"
+local CETVersion = "1.38.1"
 local ModName = "Native Interactions"
 
 local style = require("modules/ui/style")
@@ -22,6 +23,25 @@ local baseUI = {
     switchToInteraction = false
 }
 
+local function parseVersion(version)
+    local major, minor, patch = version:match("^v?(%d+)%.(%d+)%.(%d+)")
+
+    return tonumber(major), tonumber(minor), tonumber(patch)
+end
+
+local function requireCET(requiredVersion)
+    local cMajor, cMinor, cPatch = parseVersion(GetVersion():gsub("^v", ""))
+    local rMajor, rMinor, rPatch = parseVersion(requiredVersion)
+
+    if cMajor ~= rMajor then
+        return cMajor > rMajor
+    elseif cMinor ~= rMinor then
+        return cMinor > rMinor
+    else
+        return cPatch >= rPatch
+    end
+end
+
 function baseUI.init()
     if not ArchiveXL then
         table.insert(baseUI.requirementsIssues, "ArchiveXL is not installed")
@@ -41,6 +61,10 @@ function baseUI.init()
 
     if not ModArchiveExists("nativeInteractions.archive") then
         table.insert(baseUI.requirementsIssues, "Native Interactions archive is not installed")
+    end
+
+    if not requireCET(CETVersion) then
+        table.insert(baseUI.requirementsIssues, "Cyber Engine Tweaks version is outdated, please update to at least " .. CETVersion)
     end
 end
 

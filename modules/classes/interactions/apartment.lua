@@ -266,7 +266,7 @@ function apartment:canSendMessage(canPurchase)
 
     local inactive = journalManager:GetEntryState(journalManager:GetEntryByString(self.purchaseJournalPath, 'gameJournalPhoneMessage')) == gameJournalEntryState.Inactive
     if not inactive then return false end
-    local contactEnabled = journalManager:GetEntryState(journalManager:GetEntryByString(self.purchaseJournalPath, 'gameJournalPhoneConversation')) == gameJournalEntryState.Active
+    local contactEnabled = journalManager:GetEntryState(journalManager:GetEntryByString("contacts/muamar_el_capitan_reyes/apartments", 'gameJournalPhoneConversation')) == gameJournalEntryState.Active
     if not contactEnabled then return false end
     local canPurchase = canPurchase == nil and self:purchaseEnabled() or canPurchase
 
@@ -279,7 +279,6 @@ function apartment:sendMessage()
     self.messageDelayCron = Cron.After(2.5, function ()
         Game.GetJournalManager():ChangeEntryState(self.purchaseJournalPath, 'gameJournalPhoneMessage', gameJournalEntryState.Inactive, gameJournalNotifyOption.Notify)
         Game.GetJournalManager():ChangeEntryState(self.purchaseJournalPath, 'gameJournalPhoneMessage', gameJournalEntryState.Active, gameJournalNotifyOption.Notify)
-
         self.messageDelayCron = nil
     end)
 end
@@ -294,6 +293,7 @@ function apartment:onUpdate(playerPosition)
         self:refresh()
     end
 
+    -- print(self.apartmentName, self:canSendMessage(purchaseEnabled))
     if purchaseEnabled and self.messageLocKey ~= "" and self:canSendMessage(purchaseEnabled) then
         self:sendMessage()
     end

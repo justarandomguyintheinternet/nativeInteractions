@@ -73,7 +73,7 @@ function interaction:load(data)
         self.choiceUniqueID = math.random(0, 4294967295 - 100000) -- 100k nodeIDs for base nodes
     end
 
-    self.worldInteractionID = world.addInteraction(self.modulePath, ToVector4(self.worldIconPosition), self.interactionRange, self.interactionAngle, self.worldIcon, self.worldIconRange, self.useWorldIconColor and self.worldIconColor or nil, function (state)
+    self.worldInteractionID = world.addInteraction(self, ToVector4(self.worldIconPosition), self.interactionRange, self.interactionAngle, self.worldIcon, self.worldIconRange, self.useWorldIconColor and self.worldIconColor or nil, function (state)
         if state then
             self:start()
         else
@@ -97,10 +97,10 @@ function interaction:start()
 
         if not self.sceneRunning then return end
 
-        local success = resourceHelper.registerSceneEnd(self.endEvent, function (sceneActive)
+        local success = resourceHelper.registerSceneEnd(self.endEvent, self.startFactID, function (sceneActive)
             utils.removeSaveLock()
             self.sceneRunning = false
-            if sceneActive == 1 then
+            if sceneActive then
                 world.forceIcons()
             end
             self:onSceneEnd()

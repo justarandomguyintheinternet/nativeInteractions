@@ -17,9 +17,9 @@ local function getGridKey(position)
     return math.floor(position.x / cellSize) .. "_" .. math.floor(position.y / cellSize)
 end
 
-function world.addInteraction(modulePath, position, interactionRange, angle, icon, iconRange, iconColor, callback) -- Add a in-world interaction with callback for hide / show, icon is optional
+function world.addInteraction(interaction, position, interactionRange, angle, icon, iconRange, iconColor, callback) -- Add a in-world interaction with callback for hide / show, icon is optional
     local data = {
-        modulePath = modulePath,
+        modulePath = interaction.modulePath,
         pos = position,
         interactionRange = interactionRange ^ 2,
         icon = icon,
@@ -30,7 +30,8 @@ function world.addInteraction(modulePath, position, interactionRange, angle, ico
         pinID = nil,
         pinController = nil,
         shown = false,
-        disabled = false
+        disabled = false,
+        owner = interaction
     }
 
     local key = getGridKey(position)
@@ -193,7 +194,23 @@ local function scanCell(cell, posPlayer, playerForward)
 end
 
 function world.update()
-    if Game.GetQuestsSystem():GetFactStr("nif_scene_active") == 1 then return end -- Dont update if a scene is running
+    local activeSceneID = Game.GetQuestsSystem():GetFactStr("nif_scene_active")
+    print(activeSceneID)
+    if activeSceneID > 0 then
+        local interactionsToHide = {}
+
+        for _, active in pairs(world.activeInteractions) do
+            if active.interaction.owner.startFactID ~= activeSceneID then
+                table.insert(interactionsToHide, active.interaction)
+            end
+        end
+
+        for _, interaction in ipairs(interactionsToHide) do
+            hideInteraction(interaction)
+        end
+
+        return
+    end -- Dont update if a scene is running
 
     local posPlayer = GetPlayer():GetWorldPosition()
     local playerForward = GetPlayer():GetWorldForward()

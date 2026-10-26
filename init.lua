@@ -143,4 +143,4 @@ return mod:new()
 --Each scene has:
 -- Skip fact: Can be used to terminate scene, e.g. hiding interaction
 -- End event: Signals that the scene is being terminated
--- nif_scene_active: Gets set to 1 when the scenes main body runs, i.e. not while only the choice is shown, gets set to 0 when the end event is fired and catched from scripts
+-- nif_scene_active: Gets set to the interaction's startFactID when the scene's main body runs, i.e. not while only the choice is shown, gets set to 0 when the end event is fired and caught by scripts

@@ -49,10 +49,15 @@ function helper.init()
     helper.journalPatches = {}
 
     Observe('PlayerPuppet', 'OnNIFSceneEvent', function (_, event)
-        if helper.endEvents[event.eventAction.value] then
-            helper.endEvents[event.eventAction.value](Game.GetQuestsSystem():GetFactStr("nif_scene_active"))
+        local endEvent = helper.endEvents[event.eventAction.value]
+        if endEvent then
+            local activeSceneID = Game.GetQuestsSystem():GetFactStr("nif_scene_active")
+            endEvent.callback(activeSceneID == endEvent.startFactID)
             helper.endEvents[event.eventAction.value] = nil
-            Game.GetQuestsSystem():SetFactStr("nif_scene_active", 0)
+
+            if activeSceneID == endEvent.startFactID then
+                Game.GetQuestsSystem():SetFactStr("nif_scene_active", 0)
+            end
         end
     end)
 
@@ -369,13 +374,13 @@ function helper.registerPatch(scenePath, patchData)
     helper.patches[scenePath] = patchData
 end
 
-function helper.registerSceneEnd(eventName, callback)
+function helper.registerSceneEnd(eventName, startFactID, callback)
     if helper.endEvents[eventName] then
         print("[NativeInteractions] Scene end event already registered: " .. eventName)
         return false
     end
 
-    helper.endEvents[eventName] = callback
+    helper.endEvents[eventName] = { callback = callback, startFactID = startFactID }
 
     return true
 end

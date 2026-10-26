@@ -88,12 +88,13 @@ function editUI.draw(mod)
         ImGui.BeginChild("editUI", -1, 20 * ImGui.GetFrameHeightWithSpacing())
     end
 
-    local sceneActive = Game.GetQuestsSystem():GetFactStr("nif_scene_active") == 1
+    local activeSceneID = Game.GetQuestsSystem():GetFactStr("nif_scene_active")
     for key, entry in pairs(editUI.project.interactions) do
         ImGui.PushID(key)
 
-        local state = (sceneActive and entry.sceneRunning) and "In Scene" or (entry.sceneRunning and "Choice Active" or "Not Running")
-        local color = (sceneActive and entry.sceneRunning) and 0xFF00FF00 or (entry.sceneRunning and 0x8000FFFF or 0x80FFFFFF)
+        local inScene = entry.sceneRunning and activeSceneID == entry.startFactID
+        local state = inScene and "In Scene" or (entry.sceneRunning and "Choice Active" or "Not Running")
+        local color = inScene and 0xFF00FF00 or (entry.sceneRunning and 0x8000FFFF or 0x80FFFFFF)
 
         style.styledText(entry.editorIcon, color)
         style.tooltip(state)
@@ -116,8 +117,8 @@ function editUI.draw(mod)
         end
         style.tooltip("Edit Interaction")
         ImGui.SameLine()
-        style.pushGreyedOut(entry.sceneRunning and sceneActive)
-        if ImGui.Button(IconGlyphs.TrashCanOutline) and not (entry.sceneRunning and sceneActive) then
+        style.pushGreyedOut(inScene)
+        if ImGui.Button(IconGlyphs.TrashCanOutline) and not inScene then
             editUI.project:removeInteraction(entry)
             if editUI.mod.baseUI.interactionUI.interaction == entry then
                 editUI.mod.baseUI.interactionUI.interaction = nil
@@ -125,8 +126,8 @@ function editUI.draw(mod)
                 editUI.mod.baseUI.interactionUI.setFastForward(false)
             end
         end
-        style.tooltip((entry.sceneRunning and sceneActive) and "Cannot delete, is running" or "Delete Interaction")
-        style.popGreyedOut(sceneActive and entry.sceneRunning)
+        style.tooltip(inScene and "Cannot delete, is running" or "Delete Interaction")
+        style.popGreyedOut(inScene)
         style.pushButtonNoBG(false)
 
         ImGui.PopID()

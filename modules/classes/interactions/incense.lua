@@ -106,7 +106,7 @@ function incense:reset()
 end
 
 function incense:onUpdate(playerPosition)
-    if self.sceneRunning and Game.GetQuestsSystem():GetFactStr("nif_scene_active") == 1 then
+    if self.sceneRunning and Game.GetQuestsSystem():GetFactStr("nif_scene_active") == self.startFactID then
         self.used = true
         world.disableInteraction(self.worldInteractionID, true)
     end

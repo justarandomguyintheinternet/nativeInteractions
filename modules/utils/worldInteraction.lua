@@ -195,7 +195,7 @@ end
 
 function world.update()
     local activeSceneID = Game.GetQuestsSystem():GetFactStr("nif_scene_active")
-    print(activeSceneID)
+
     if activeSceneID > 0 then
         local interactionsToHide = {}
 
